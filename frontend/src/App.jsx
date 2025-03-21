@@ -1,33 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React,{useEffect} from 'react'
+import { Routes,Route } from "react-router"
+import Navbar from "./components/Navbar"
+import Login from "./pages/Login"
+import SignIn from './pages/SignIn'
+import Home from './pages/Home'
+import Features from './pages/Features'
+import Services from './pages/Services'
+import Aboutus from './pages/Aboutus'
+import {Toaster} from "react-hot-toast"
+import Customer from './pages/Customer'
+import AdminDashboard from './admin/AdminDashboard'
+import { userAuth } from './store/userAuth'
+import AdminNavbar from './components/AdminNavbar'
+import AdminStaff from './admin/AdminStaff'
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  
+  const { fetchUser, fetchingUser, user } = userAuth();
+
+  useEffect(() => {
+    fetchUser(); // Fetch user data when app loads
+  }, []);
+
+  // If the user data is still being fetched, show loading state
+  if (fetchingUser) {
+    return <p>Loading...</p>;
+  }
+
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Toaster/>
+
+{user && user.email === "admin@gmail.com" ? <AdminNavbar /> : <Navbar />}
+
+{/* <Navbar/> */}
+
+
+<Routes>
+  <Route path={"/login"} element={<Login/>}/>
+  <Route path={"/signup"} element={<SignIn/>}/>
+  <Route path={"/"} element={<Home/>}/>
+  <Route path={"/features"} element={<Features/>}/>
+  <Route path={"/services"} element={<Services/>}/>
+  <Route path={"/about"} element={<Aboutus/>}/>
+  <Route path={"/customer"} element={<Customer/>}/>
+  <Route path={"/admindash"} element={<AdminDashboard/>}/>
+  <Route path={"/staff"} element={<AdminStaff/>}/>
+</Routes>
+
     </>
   )
 }
