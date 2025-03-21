@@ -1,4 +1,4 @@
-import Inventory from "../model/InventoryModel"
+import Inventory from "../model/InventoryModel.js"
 export const addInventory = async (req, res) => {
     const { fuelType, pricePerLiter, literQuantity, expiryDate } = req.body;
 
