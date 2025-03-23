@@ -17,7 +17,7 @@ function Home() {
           Start using LandingFolio
         </button>
       </section>
-      
+
       {/* Right Section (Image) */}
       <img src={fuelImage} alt="Placeholder Image" className="w-full max-w-[530px] h-auto rounded-3xl " />
     </div>
