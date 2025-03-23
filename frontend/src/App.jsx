@@ -13,6 +13,7 @@ import AdminDashboard from './admin/AdminDashboard'
 import { userAuth } from './store/userAuth'
 import AdminNavbar from './components/AdminNavbar'
 import AdminStaff from './admin/AdminStaff'
+import Supplier from './pages/Supplier';
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
   <Route path={"/customer"} element={<Customer/>}/>
   <Route path={"/admindash"} element={<AdminDashboard/>}/>
   <Route path={"/staff"} element={<AdminStaff/>}/>
+  <Route path={"/supplier"} element={<Supplier />} />
 </Routes>
 
     </>
