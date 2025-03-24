@@ -1,4 +1,6 @@
-import Inventory from "../model/InventoryModel.js"
+import Inventory from "../model/InventoryModel.js";
+
+// Add inventory item
 export const addInventory = async (req, res) => {
     const { fuelType, pricePerLiter, literQuantity, expiryDate } = req.body;
 
@@ -32,9 +34,10 @@ export const addInventory = async (req, res) => {
     }
 };
 
+// Get all inventory items
 export const getAllInventory = async (req, res) => {
     try {
-        const inventoryItems = await Inventory.find(); // Fetch all inventory items
+        const inventoryItems = await Inventory.find();
         if (!inventoryItems || inventoryItems.length === 0) {
             return res.status(404).json({ message: "No inventory items found." });
         }
@@ -50,20 +53,19 @@ export const getInventoryById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const inventoryItem = await Inventory.findById(id); // Find inventory by ID
+        const inventoryItem = await Inventory.findById(id);
 
         if (!inventoryItem) {
             return res.status(404).json({ message: "Inventory item not found." });
         }
 
-        // Send the inventory details in response
         res.status(200).json({
             inventoryItem: {
                 id: inventoryItem._id,
                 fuelType: inventoryItem.fuelType,
                 pricePerLiter: inventoryItem.pricePerLiter,
                 literQuantity: inventoryItem.literQuantity,
-                expiryDate: inventoryItem.expiryDate.toISOString().split('T')[0], // Format Date
+                expiryDate: inventoryItem.expiryDate.toISOString().split('T')[0],
             }
         });
 
@@ -78,17 +80,15 @@ export const updateInventory = async (req, res) => {
     const { fuelType, pricePerLiter, literQuantity, expiryDate } = req.body;
 
     try {
-        // Check if the inventory item exists
         const inventoryItem = await Inventory.findById(id);
         if (!inventoryItem) {
             return res.status(404).json({ message: "Inventory item not found." });
         }
 
-        // Update inventory item details
-        inventoryItem.fuelType = fuelType || inventoryItem.fuelType;
-        inventoryItem.pricePerLiter = pricePerLiter || inventoryItem.pricePerLiter;
-        inventoryItem.literQuantity = literQuantity || inventoryItem.literQuantity;
-        inventoryItem.expiryDate = expiryDate ? new Date(expiryDate) : inventoryItem.expiryDate;
+        if (fuelType) inventoryItem.fuelType = fuelType;
+        if (pricePerLiter) inventoryItem.pricePerLiter = pricePerLiter;
+        if (literQuantity) inventoryItem.literQuantity = literQuantity;
+        if (expiryDate) inventoryItem.expiryDate = new Date(expiryDate);
 
         const updatedInventory = await inventoryItem.save();
 
@@ -98,7 +98,7 @@ export const updateInventory = async (req, res) => {
                 fuelType: updatedInventory.fuelType,
                 pricePerLiter: updatedInventory.pricePerLiter,
                 literQuantity: updatedInventory.literQuantity,
-                expiryDate: updatedInventory.expiryDate.toISOString().split('T')[0], // Format Date
+                expiryDate: updatedInventory.expiryDate.toISOString().split('T')[0],
             },
             message: "Inventory item updated successfully."
         });
@@ -119,7 +119,6 @@ export const deleteInventory = async (req, res) => {
             return res.status(404).json({ message: "Inventory item not found." });
         }
 
-        // Delete the inventory item
         await Inventory.findByIdAndDelete(id);
 
         res.status(200).json({ message: "Inventory item deleted successfully." });
