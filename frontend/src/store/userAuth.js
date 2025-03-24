@@ -40,7 +40,7 @@ export const userAuth=create((set)=>({
         }
     },
 
-
+    
     login:async(email,password)=>{
         set({isLoading:true,message:null,error:null});
 
@@ -64,6 +64,8 @@ export const userAuth=create((set)=>({
         }
     },
 
+    
+
     fetchUser:async()=>{
         set({fetchingUser:true,error:null})
 
@@ -84,6 +86,8 @@ export const userAuth=create((set)=>({
         }
 
     },
+
+
 
     logout:async()=>{
 

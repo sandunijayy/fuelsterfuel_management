@@ -13,6 +13,8 @@ import AdminDashboard from './admin/AdminDashboard'
 import { userAuth } from './store/userAuth'
 import AdminNavbar from './components/AdminNavbar'
 import AdminStaff from './admin/AdminStaff'
+import StaffMember from './staff/StaffMember'
+import Sales from './staff/Sales'
 
 
 function App() {
@@ -33,9 +35,9 @@ function App() {
     <>
       <Toaster/>
 
-{user && user.email === "admin@gmail.com" ? <AdminNavbar /> : <Navbar />}
 
-{/* <Navbar/> */}
+
+
 
 
 <Routes>
@@ -48,6 +50,8 @@ function App() {
   <Route path={"/customer"} element={<Customer/>}/>
   <Route path={"/admindash"} element={<AdminDashboard/>}/>
   <Route path={"/staff"} element={<AdminStaff/>}/>
+  <Route path={"/staffmember"} element={<StaffMember/>}/>
+  <Route path={"/salespage"} element={<Sales/>}/>
 </Routes>
 
     </>
