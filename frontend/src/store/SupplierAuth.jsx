@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import axios from "axios";
-
 const API_URL = "http://localhost:5000/api";
 
 export const SupplierAuth = create((set) => ({
@@ -11,7 +10,7 @@ export const SupplierAuth = create((set) => ({
   message: null,
 
   // Functions
-  addSupplier: async (fullName, email, contactNo, address, fuelType) => {
+  addSupplier: async (fullName, email, contactNo, address) => {
     set({ isLoading: true, message: null, error: null });
 
     try {
@@ -22,7 +21,7 @@ export const SupplierAuth = create((set) => ({
           email,
           contactNo,
           address,
-          fuelType,
+         
         },
         { withCredentials: true }
       );
@@ -70,7 +69,7 @@ export const SupplierAuth = create((set) => ({
     }
   },
 
-  updateSupplier: async (id, fullName, email, contactNo, address, fuelType) => {
+  updateSupplier: async (id, fullName, email, contactNo, address) => {
     set({ isLoading: true, message: null, error: null });
 
     try {
@@ -81,7 +80,7 @@ export const SupplierAuth = create((set) => ({
           email,
           contactNo,
           address,
-          fuelType,
+          
         },
         { withCredentials: true }
       );
@@ -123,6 +122,7 @@ export const SupplierAuth = create((set) => ({
     try {
       const response = await axios.delete(`${API_URL}/deleteSupplier/${id}`, { withCredentials: true });
       set({ message: response.data.message, isLoading: false });
+      
 
       // Remove the deleted supplier from the state
       set((state) => ({

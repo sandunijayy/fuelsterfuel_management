@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'; // To navigate to FuelDataPage
 import { SupplierAuth } from '../store/SupplierAuth';
 import toast from 'react-hot-toast';
 import { FaPlus, FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaTruck } from 'react-icons/fa'; // Import the delivery van icon
 
 function Supplier() {
   const navigate = useNavigate();
@@ -14,72 +15,124 @@ function Supplier() {
   const [email, setEmail] = useState('');
   const [contactNo, setContactNo] = useState('');
   const [address, setAddress] = useState('');
-  const [fuelType, setFuelType] = useState('');
+
+
+  const [fullNameError, setFullNameError] = useState('');
+  const [contactNoError, setContactNoError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
 
   const { suppliers, fetchSuppliers, isLoading, error, addSupplier, updateSupplier, deleteSupplier } = SupplierAuth();
 
-  useEffect(() => {
-    fetchSuppliers();
-  }, [fetchSuppliers]);
+useEffect(() => {
+  fetchSuppliers();
+}, [fetchSuppliers]);
 
-  const handleAddSupplier = async (e) => {
-    e.preventDefault();
-  
-    if (!fullName || !email || !contactNo || !address || !fuelType) {
+
+
+
+const handleAddSupplier = async (e) => {
+  e.preventDefault();
+
+  if (!fullName || !email || !contactNo || !address) {
+    toast.error('Please fill in all fields');
+    return;
+  }
+
+  try {
+    const newSupplier = await addSupplier(fullName, email, contactNo, address);
+    toast.success('Supplier added successfully!');
+
+    // Update local state immediately
+    fetchSuppliers(); 
+
+    setShowModal(false);
+    setFullName('');
+    setEmail('');
+    setContactNo('');
+    setAddress('');
+  } catch (error) {
+    const errorMessage = error?.response?.data?.message || 'Error adding supplier. Please try again';
+    toast.error(errorMessage);
+  }
+};
+
+
+const handleUpdateSupplier = async (e) => {
+  e.preventDefault();
+
+  if (!fullName || !email || !contactNo || !address) {
       toast.error('Please fill in all fields');
       return;
-    }
-  
-    try {
-      await addSupplier(fullName, email, contactNo, address, fuelType);
-      toast.success('Supplier added successfully!');
-      await fetchSuppliers();
-      setShowModal(false);
-      setFullName('');
-      setEmail('');
-      setContactNo('');
-      setAddress('');
-      setFuelType('');
-    } catch (error) {
-      const errorMessage = error?.response?.data?.message || 'Error adding supplier. Please try again';
-      toast.error(errorMessage);
-    }
-  };
+  }
 
-  const handleUpdateSupplier = async (e) => {
-    e.preventDefault();
-
-    if (!fullName || !email || !contactNo || !address || !fuelType) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-
-    try {
-      await updateSupplier(currentSupplierId, fullName, email, contactNo, address, fuelType);
+  try {
+      await updateSupplier(currentSupplierId, fullName, email, contactNo, address);
       toast.success('Supplier updated successfully!');
+
+      // Refresh supplier list after update
+      await fetchSuppliers();
+
+      // Reset modal and form
       setShowModal(false);
       setFullName('');
       setEmail('');
       setContactNo('');
       setAddress('');
-      setFuelType('');
       setIsEdit(false);
-    } catch (error) {
+  } catch (error) {
       const errorMessage = error?.response?.data?.message || 'Error updating supplier. Please try again';
       toast.error(errorMessage);
-    }
-  };
+  }
+};
 
-  const handleEditClick = (supplier) => {
-    setIsEdit(true);
-    setCurrentSupplierId(supplier._id);
-    setFullName(supplier.fullName);
-    setEmail(supplier.email);
-    setContactNo(supplier.contactNo);
-    setAddress(supplier.address);
-    setFuelType(supplier.fuelType);
-    setShowModal(true);
-  };
+// Handles clicking the edit button to update supplier details
+const handleEditClick = (supplier) => {
+  setIsEdit(true);
+  setCurrentSupplierId(supplier._id);
+  setFullName(supplier.fullName);
+  setEmail(supplier.email);
+  setContactNo(supplier.contactNo);
+  setAddress(supplier.address);
+
+  setShowModal(true);
+};
+
+const filteredSuppliers = suppliers.filter((supplier) =>
+  supplier.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
+
+
+const handleFullNameChange = (e) => {
+  const value = e.target.value;
+  setFullName(value);
+
+  // Validate full name (only alphabets and spaces allowed)
+  const nameRegex = /^[A-Za-z\s]+$/;
+  if (!nameRegex.test(value)) {
+    setFullNameError('Enter valid name');
+  } else {
+    setFullNameError('');
+  }
+};
+
+const handleContactNoChange = (e) => {
+  const value = e.target.value;
+  setContactNo(value);
+
+  // Validate contact number (only numbers and exactly 10 digits)
+  const phoneRegex = /^[0-9]{10}$/;
+  if (value.length > 10) {
+    setContactNoError('Double check your contact number');
+  } else if (!phoneRegex.test(value)) {
+    setContactNoError('Please enter valid contact number');
+  } else {
+    setContactNoError('');
+  }
+};
+
+
 
   const handleDeleteSupplier = async (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this supplier?");
@@ -87,22 +140,32 @@ function Supplier() {
       try {
         await deleteSupplier(id);
         toast.success('Supplier deleted successfully!');
-        setSuppliers((prevSuppliers) => prevSuppliers.filter((supplier) => supplier._id !== id));
+  
+        // Ensure state updates immediately after deleting
+        fetchSuppliers();  
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Error deleting supplier. Please try again.");
+        const errorMessage = error?.response?.data?.message || "Error deleting supplier. Please try again.";
+        toast.error(errorMessage);
       }
     }
   };
-
- 
-
- 
   
+return (
 
-  return (
     <div className='min-h-screen text-[#252422] bg-[#f3f5f0] px-4 md:px-14'>
-      <h1 className='text-center font-semibold pt-16 md:text-2xl w-full max-w-xl mx-auto'>Suppliers</h1>
+      <h1 className='text-center font-semibold pt-16 md:text-2xl w-full max-w-xl mx-auto'>Suppliers List</h1>
 
+      <div className="absolute top- 16 right-10">
+     <input
+       type="text"
+      placeholder="Search by Supplier Name..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-80 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+     />
+         </div>
+
+    
       {/* Add Supplier Button */}
       <div className="mb-4 flex items-center justify-between w-3/4 mx-auto">
         <button
@@ -121,7 +184,7 @@ function Supplier() {
             <th className="px-4 py-2">Email</th>
             <th className="px-4 py-2">Contact No</th>
             <th className="px-4 py-2">Address</th>
-            <th className="px-4 py-2">Fuel Type</th>
+           
             <th className="px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -135,13 +198,12 @@ function Supplier() {
               <td colSpan="7" className="text-center py-4 text-red-500">{error}</td>
             </tr>
           ) : (
-            suppliers.map((supplier) => (
+            filteredSuppliers.map((supplier) => (
               <tr key={supplier._id} className="bg-white border-b hover:bg-gray-50">
                 <td className="px-4 py-2">{supplier.fullName}</td>
                 <td className="px-4 py-2">{supplier.email}</td>
                 <td className="px-4 py-2">{supplier.contactNo}</td>
                 <td className="px-4 py-2">{supplier.address}</td>
-                <td className="px-4 py-2">{supplier.fuelType}</td>
                 <td className="px-4 py-2 flex space-x-2">
                   <button
                     className="px-3 py-1 text-white bg-green-500 rounded flex items-center gap-1 hover:bg-green-600"
@@ -155,8 +217,13 @@ function Supplier() {
                   >
                     <FaTrashAlt />
                   </button>
-                  
-                </td>
+                  <button
+                   className="px-3 py-1 text-white bg-orange-500 rounded flex items-center gap-1 hover:bg-orange-600"
+                   onClick={() => navigate(`/place-order/${supplier._id}`, { state: { supplierId: supplier._id } })}
+                       >
+                     <FaTruck /> Place Order
+                         </button>
+                    </td>
               </tr>
             ))
           )}
@@ -177,8 +244,10 @@ function Supplier() {
                   type="text"
                   className="w-full px-3 py-2 border rounded-lg"
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
+                  onChange={handleFullNameChange}
+                  />
+                 {fullNameError && <p className="text-red-500 text-sm">{fullNameError}</p>}
+                
               </div>
               <div className="flex flex-col">
                 <label className="md:text-lg">Email</label>
@@ -195,8 +264,9 @@ function Supplier() {
                   type="text"
                   className="w-full px-3 py-2 border rounded-lg"
                   value={contactNo}
-                  onChange={(e) => setContactNo(e.target.value)}
+                  onChange={handleContactNoChange}
                 />
+                {contactNoError && <p className="text-red-500 text-sm">{contactNoError}</p>}
               </div>
               <div className="flex flex-col">
                 <label className="md:text-lg">Address</label>
@@ -207,15 +277,7 @@ function Supplier() {
                   onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
-              <div className="flex flex-col">
-                <label className="md:text-lg">Fuel Type</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-lg"
-                  value={fuelType}
-                  onChange={(e) => setFuelType(e.target.value)}
-                />
-              </div>
+              
               <div className="flex justify-between">
                 <button
                   type="submit"

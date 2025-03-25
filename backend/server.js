@@ -6,7 +6,9 @@ import userRoute from "./routes/userRoute.js"
 import { connectToDB } from "./config/db.js";
 import employeeRouter  from "./routes/adminStaffRoute.js"
 import supplierRouter from "./routes/SupplierRoute.js"
+import placeOrderRouter from "./router/PlaceOrderRoute.js"; 
 dotenv.config()
+
 
 
 const app=express();
@@ -23,6 +25,8 @@ app.use(cookieParser());
 
 app.use("/api",userRoute)
 app.use("/api",employeeRouter)
+app.use("/api",supplierRouter);
+app.use("/api", placeOrderRouter); 
 
 console.log("port is ",process.env.PORT)
 app.use(express.json({limit:"20mb"}));

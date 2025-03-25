@@ -1,11 +1,11 @@
-import Supplier from "../model/SupplierModel.js"
+import Supplier from "../models/SupplierModel.js"
 
 export const addSupplier = async (req, res) => {
-    const { fullName, email, contactNo, address, fuelType } = req.body;
+    const { fullName, email, contactNo, address } = req.body;
 
     try {
         // Check if all fields are provided
-        if (!fullName || !email || !contactNo || !address ||  !fuelType) {
+        if (!fullName || !email || !contactNo || !address ) {
             throw new Error("Please fill in all fields.");
         }
 
@@ -19,7 +19,7 @@ export const addSupplier = async (req, res) => {
             email,
             contactNo,
             address,
-            fuelType
+            
         });
 
         if (supplierDocument) {
@@ -30,7 +30,7 @@ export const addSupplier = async (req, res) => {
                     email: supplierDocument.email,
                     contactNo: supplierDocument.contactNo,
                     address: supplierDocument.address,
-                    fuelType: supplierDocument.fuelType,
+                    
                 },
                 message: "Supplier added successfully."
             });
@@ -44,6 +44,7 @@ export const addSupplier = async (req, res) => {
 // Get all suppliers
 export const getAllSuppliers = async (req, res) => {
     try {
+        console.log("Fetching all suppliers..."); // Add logging here for debugging
         const suppliers = await Supplier.find(); // Fetch all suppliers
         if (!suppliers || suppliers.length === 0) {
             return res.status(404).json({ message: "No suppliers found." });
@@ -54,6 +55,7 @@ export const getAllSuppliers = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // Get supplier by ID
 export const getSupplierById = async (req, res) => {
@@ -74,7 +76,7 @@ export const getSupplierById = async (req, res) => {
                 email: supplier.email,
                 contactNo: supplier.contactNo,
                 address: supplier.address,
-                fuelType: supplier.fuelType
+                
             }
         });
 
@@ -85,7 +87,7 @@ export const getSupplierById = async (req, res) => {
 
 export const updateSupplier = async (req, res) => {
     const { id } = req.params;
-    const { fullName, email, contactNo, address, fuelType } = req.body;
+    const { fullName, email, contactNo, address } = req.body;
 
     try {
         // Check if the supplier exists
@@ -103,7 +105,7 @@ export const updateSupplier = async (req, res) => {
         supplierData.email = email || supplierData.email;
         supplierData.contactNo = contactNo || supplierData.contactNo;
         supplierData.address = address || supplierData.address;
-        supplierData.fuelType = fuelType || supplierData.fuelType;
+        
 
         const updatedSupplier = await supplierData.save();
 
@@ -115,7 +117,7 @@ export const updateSupplier = async (req, res) => {
                 contactNo: updatedSupplier.contactNo,
                 address: updatedSupplier.address,
                 
-                fuelType: updatedSupplier.fuelType,
+                
             },
             message: "Supplier updated successfully."
         });
@@ -138,8 +140,12 @@ export const deleteSupplier = async (req, res) => {
         // Delete the supplier
         await Supplier.findByIdAndDelete(id);
 
-        res.status(200).json({ message: "Supplier deleted successfully." });
+        // Send only success response, no extra errors
+        return res.status(200).json({ message: "Supplier deleted successfully." });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error deleting supplier:", error.message);  // Log the actual error for debugging
+        return res.status(500).json({ message: "Internal server error. Could not delete supplier." });
     }
 };
+
