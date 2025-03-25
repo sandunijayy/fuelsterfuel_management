@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import  toast from 'react-hot-toast';
+//import { toast, ToastContainer } from 'react-toastify';
+//import 'react-toastify/dist/ReactToastify.css';
 
-toast.configure();
+//toast.configure();
 
 export default function FuelReservationForm() {
     const [formData, setFormData] = useState({
@@ -21,7 +22,7 @@ export default function FuelReservationForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/reserve', formData);
+            await axios.post('http://localhost:5000/api/reservation', formData);
             toast.success('Reservation Successful!');
             setFormData({ customerName: '', vehicleType: '', priority: 'Medium', fuelAmount: '', phoneNumber: '' });
         } catch (error) {

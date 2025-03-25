@@ -1,24 +1,24 @@
-import {create} from "zustand";
+import { create } from "zustand";
 import axios from "axios";
 
-const API_URL="http://localhost:5000/api";
+const API_URL = "http://localhost:5000/api";
 
-export const userAuth=create((set)=>({
+export const userAuth = create((set) => ({
 
     //initial states
-    user:null,
-    isLoading:false,
-    error:null,
-    message:null,
-    fetchingUser:true,
+    user: null,
+    isLoading: false,
+    error: null,
+    message: null,
+    fetchingUser: true,
 
     //functions
-    signup:async(username,email,password)=>{
-        set({isLoading:true,message:null})
+    signup: async (username, email, password) => {
+        set({ isLoading: true, message: null })
 
         try {
-            const response=await axios.post(`${API_URL}/signup`,{
-                username,email,password
+            const response = await axios.post(`${API_URL}/signup`, {
+                username, email, password
 
             }, { withCredentials: true });
 
@@ -27,13 +27,14 @@ export const userAuth=create((set)=>({
             }
 
             set({
-                user:response.data.user, 
-                isLoading:false,
-                message:response.data.message
+                user: response.data.user,
+                isLoading: false,
+                message: response.data.message
             });
 
         } catch (error) {
-            set({isLoading:false,error:error.response.data.message || "Error signing up",
+            set({
+                isLoading: false, error: error.response.data.message || "Error signing up",
 
             });
             throw error;
@@ -41,65 +42,65 @@ export const userAuth=create((set)=>({
     },
 
 
-    login:async(email,password)=>{
-        set({isLoading:true,message:null,error:null});
+    login: async (email, password) => {
+        set({ isLoading: true, message: null, error: null });
 
         try {
-            const response=await axios.post(`${API_URL}/login`,{
+            const response = await axios.post(`${API_URL}/login`, {
                 email,
                 password,
-            },{ withCredentials: true })
+            }, { withCredentials: true })
 
-            const{user,message}=response.data;
+            const { user, message } = response.data;
 
-            set({user,isLoading:false,message})
-            return{user,message}
+            set({ user, isLoading: false, message })
+            return { user, message }
 
         } catch (error) {
-            
+
             set({
-                isLoading:false,
-                error:error.response.data.message || "error logging in",
+                isLoading: false,
+                error: error.response.data.message || "error logging in",
             })
         }
     },
 
-    fetchUser:async()=>{
-        set({fetchingUser:true,error:null})
+    fetchUser: async () => {
+        set({ fetchingUser: true, error: null })
 
         try {
-            
-            const response=await axios.get(`${API_URL}/fetch-user`, { withCredentials: true });
-            set({user:response.data.user, fetchingUser:false})
+
+            const response = await axios.get(`${API_URL}/fetch-user`, { withCredentials: true });
+            set({ user: response.data.user, fetchingUser: false })
         } catch (error) {
-            
+
             set({
-                fetchingUser:false,
-                error:null,
-                user:null,
+                fetchingUser: false,
+                error: null,
+                user: null,
             });
 
             throw error;
-            
+
         }
 
     },
 
-    logout:async()=>{
+    logout: async () => {
 
-        set({isLoading:true,error:null,message:null});
+        set({ isLoading: true, error: null, message: null });
 
         try {
-            const response=await axios.post(`${API_URL}/logout`,{ withCredentials: true });
-            const{message}=response.data;
+            const response = await axios.post(`${API_URL}/logout`, { withCredentials: true });
+            const { message } = response.data;
 
-            set({message,isLoading:false,user:null,error:null})
-            return {message};
+            set({ message, isLoading: false, user: null, error: null })
+            return { message };
         } catch (error) {
-            
+
             set({
-                isLoading:false,
-                error:error.response.data.message || "error logging out",
+                isLoading: false,
+                error: error.response.data.message || "error logging out",
             });
 
             throw error;

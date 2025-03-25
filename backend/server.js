@@ -7,6 +7,7 @@ import { connectToDB } from "./config/db.js";
 import employeeRouter from "./routes/adminStaffRoute.js"
 import reservationRouter from "./routes/reservationRoute.js"
 
+
 dotenv.config()
 
 
@@ -24,7 +25,8 @@ app.use(cookieParser());
 
 app.use("/api", userRoute)
 app.use("/api", employeeRouter)
-app.use('/api', reservationRouter);
+app.use("/api", reservationRouter);
+//app.use('/api/v1/getcontact', reservationRouter);
 
 console.log("port is ", process.env.PORT)
 app.use(express.json({ limit: "20mb" }));
