@@ -1,19 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import axios from 'axios';
-import  toast from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import { userAuth } from '../store/userAuth';
 //import { toast, ToastContainer } from 'react-toastify';
 //import 'react-toastify/dist/ReactToastify.css';
 
 //toast.configure();
 
 export default function FuelReservationForm() {
+    const { user } = userAuth(); // Get logged-in user data
+
     const [formData, setFormData] = useState({
         customerName: '',
         vehicleType: '',
         priority: 'Medium',
+        fuelType: '',
         fuelAmount: '',
+        email: '',
         phoneNumber: '',
     });
+
+    // Prefill form when user data is available
+    useEffect(() => {
+        if (user) {
+            setFormData((prevData) => ({
+                ...prevData,
+                customerName: user.username || '',
+                email: user.email || '',
+            }));
+        }
+    }, [user]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,7 +41,7 @@ export default function FuelReservationForm() {
         try {
             await axios.post('http://localhost:5000/api/reservation', formData);
             toast.success('Reservation Successful!');
-            setFormData({ customerName: '', vehicleType: '', priority: 'Medium', fuelAmount: '', phoneNumber: '' });
+            setFormData({ customerName: '', email: '', vehicleType: '', fuelType: '', priority: 'Medium', fuelAmount: '', phoneNumber: '' });
         } catch (error) {
             toast.error('Reservation Failed');
         }
@@ -35,7 +52,14 @@ export default function FuelReservationForm() {
             <h2 className="text-xl font-bold mb-4">Fuel Reservation</h2>
             <form onSubmit={handleSubmit} className="space-y-3">
                 <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} placeholder="Your Name" required className="w-full p-2 border rounded" />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Your Email" required className="w-full p-2 border rounded" />
                 <input type="text" name="vehicleType" value={formData.vehicleType} onChange={handleChange} placeholder="Vehicle Type" required className="w-full p-2 border rounded" />
+                <select name="fuelType" value={formData.fuelType} onChange={handleChange} required className="w-full p-2 border rounded">
+                    <option value="">Select Fuel Type</option>
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="Electric">Electric</option>
+                </select>
                 <select name="priority" value={formData.priority} onChange={handleChange} className="w-full p-2 border rounded">
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>

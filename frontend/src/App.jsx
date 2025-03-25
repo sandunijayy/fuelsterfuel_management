@@ -14,7 +14,9 @@ import { userAuth } from './store/userAuth'
 import AdminNavbar from './components/AdminNavbar'
 import AdminStaff from './admin/AdminStaff'
 import FuelReservationForm from "./components/FuelReservationForm"
-
+import Supplier from './admin/Supplier';
+import InventoryPage from './pages/Inventorypage'
+import PlaceOrder from './pages/PlaceOrder'
 
 function App() {
 
@@ -34,7 +36,7 @@ function App() {
     <>
       <Toaster />
 
-      {user && user.email === "admin@gmail.com" ? <AdminNavbar /> : <Navbar />}
+      {/* {user && user.email === "admin@gmail.com" ? <AdminNavbar /> : <Navbar />} */}
 
       {/* <Navbar/> */}
 
@@ -50,6 +52,10 @@ function App() {
         <Route path={"/admindash"} element={<AdminDashboard />} />
         <Route path={"/staff"} element={<AdminStaff />} />
         <Route path={"/reservation"} element={<FuelReservationForm />} />
+        <Route path={"/inventory"} element={<InventoryPage />} />
+        <Route path={"/suppliers"} element={<Supplier />} />
+        <Route path={"/place-order/:supplierId"} element={<PlaceOrder />} />
+        
       </Routes>
 
     </>

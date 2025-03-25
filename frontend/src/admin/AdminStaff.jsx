@@ -2,6 +2,7 @@ import React, { useState,useEffect  } from 'react';
 import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa';
 import {employeeAuth} from "../store/employeeAuth"
 import toast from 'react-hot-toast';
+import AdminNavbar from '../components/AdminNavbar';
 
 function AdminStaff() {
 
@@ -110,7 +111,8 @@ function AdminStaff() {
   };
 
   return (
-    
+    <>
+    <AdminNavbar/>
     <div className="ml-64 p-10 bg-gray-100">
     {/* Title */}
     <h2 className="text-4xl font-semibold text-gray-700 mb-16 text-center">Current Employees</h2>
@@ -210,7 +212,7 @@ function AdminStaff() {
       )}
 
   </div>
-
+  </>
   )
 }
 

@@ -1,5 +1,5 @@
 import express from "express"
-import { createReservation, getReservationsController, deleteReservationController } from "../controller/reservationController.js"
+import { createReservation, getReservationsController, deleteReservationController, getReservationController,getUserReservations} from "../controller/reservationController.js"
 
 const router = express.Router();
 
@@ -11,10 +11,14 @@ router.post("/reservation", createReservation);
 router.get("/get-reserv", getReservationsController);
 
 //retrieve by id
-//router.get("/Onecontact/:id", requireSignIn, getContactController);
+router.get("/onereserv/:id", getReservationController);
 
 //delete by id
 router.delete("/Deletereserv/:id", deleteReservationController);
+
+//get reservation details according to the login details
+router.get("/reservations/:email", getUserReservations);
+
 
 
 

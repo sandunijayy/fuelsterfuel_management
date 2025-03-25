@@ -6,7 +6,9 @@ import userRoute from "./routes/userRoute.js"
 import { connectToDB } from "./config/db.js";
 import employeeRouter from "./routes/adminStaffRoute.js"
 import reservationRouter from "./routes/reservationRoute.js"
-
+import InventoryRoute from "./routes/InventoryRoute.js"
+import supplierRouter from "./routes/SupplierRoute.js"
+import placeOrderRouter from "./routes/PlaceOrderRoute.js"; 
 
 dotenv.config()
 
@@ -26,10 +28,13 @@ app.use(cookieParser());
 app.use("/api", userRoute)
 app.use("/api", employeeRouter)
 app.use("/api", reservationRouter);
+app.use("/api", InventoryRoute);
+app.use("/api",supplierRouter);
+app.use("/api", placeOrderRouter); 
 //app.use('/api/v1/getcontact', reservationRouter);
 
 console.log("port is ", process.env.PORT)
-app.use(express.json({ limit: "20mb" }));
+
 
 console.log("MONGO_URI from env:", process.env.MONGO_URI);
 

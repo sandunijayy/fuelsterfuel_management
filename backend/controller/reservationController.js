@@ -8,11 +8,23 @@ import Reservation from "../model/reservationModel.js";
 //creating a reservation
 export const createReservation = async (req, res) => {
     try {
-        const { customerName, vehicleType, priority, fuelAmount, status, phoneNumber } = req.body;
-        const newReservation = new Reservation({ customerName, vehicleType, priority, fuelAmount, status, phoneNumber });
+        console.log("Received request:", req.body); // Log request body
+
+        const { customerName, email, vehicleType, fuelType, priority, fuelAmount, phoneNumber } = req.body;
+        
+        // Check for missing fields
+        if (!customerName || !email || !vehicleType || !fuelType || !fuelAmount || !phoneNumber) {
+            console.log("Missing fields in request");
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const newReservation = new Reservation({ customerName, email, vehicleType, fuelType, priority, fuelAmount, phoneNumber });
         await newReservation.save();
-        res.status(201).json({ message: 'reservation form submitted successfully' });
+
+        console.log("Reservation saved successfully");
+        res.status(201).json({ message: "Reservation form submitted successfully" });
     } catch (error) {
+        console.error("Error creating reservation:", error); // Print full error in logs
         res.status(500).json({ error: error.message });
     }
 };
@@ -52,6 +64,27 @@ export const deleteReservationController = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+//reservations for a specific user based on their email or user ID.
+export const getUserReservations = async (req, res) => {
+    try {
+        const { email } = req.params; // Get email from request params
+        if (!email) {
+            return res.status(400).json({ message: "User email is required" });
+        }
+
+        const reservations = await Reservation.find({ email: email });
+        
+        if (!reservations.length) {
+            return res.status(404).json({ message: "No reservations found for this user" });
+        }
+
+        res.status(200).json(reservations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 
 /*export const createReservation = async (req, res) => {
