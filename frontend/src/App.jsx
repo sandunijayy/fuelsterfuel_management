@@ -15,6 +15,8 @@ import AdminNavbar from './components/AdminNavbar'
 import AdminStaff from './admin/AdminStaff'
 import StaffMember from './staff/StaffMember'
 import Sales from './staff/Sales'
+import CustomerDetails from './admin/CustomerDetails'
+import ViewProfile from './customer/ViewProfile'
 
 
 function App() {
@@ -35,11 +37,6 @@ function App() {
     <>
       <Toaster/>
 
-
-
-
-
-
 <Routes>
   <Route path={"/login"} element={<Login/>}/>
   <Route path={"/signup"} element={<SignIn/>}/>
@@ -52,6 +49,9 @@ function App() {
   <Route path={"/staff"} element={<AdminStaff/>}/>
   <Route path={"/staffmember"} element={<StaffMember/>}/>
   <Route path={"/salespage"} element={<Sales/>}/>
+  <Route path={"/customerdetails"} element={<CustomerDetails/>}/>
+  <Route path={"/profile"} element={<ViewProfile/>}/>
+
 </Routes>
 
     </>

@@ -10,4 +10,7 @@ router.get("/getemployee/:id", getEmployeeById);
 router.put("/updateEmployee/:id", updateEmployee);
 router.delete("/deleteEmployee/:id", deleteEmployee);
 
+// router.post("/login", employeeLogin);
+// router.post("/logout", employeeLogout);
+
 export default router;

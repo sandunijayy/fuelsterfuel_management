@@ -29,7 +29,7 @@ function AdminNavbar() {
         <Link to="/admindash" className="flex items-center p-2 hover:bg-gray-700 rounded-md">🏠 Dashboard</Link>
         <Link to="/staff" className="flex items-center p-2 hover:bg-gray-700 rounded-md">🧑‍💻  Staff</Link>
         <Link to="/suppliers" className="flex items-center p-2 hover:bg-gray-700 rounded-md">🚚 Suppliers</Link>
-        <Link to="/customers" className="flex items-center p-2 hover:bg-gray-700 rounded-md">👥 Customers</Link>
+        <Link to="/customerdetails" className="flex items-center p-2 hover:bg-gray-700 rounded-md">👥 Customers</Link>
         <Link to="/products" className="flex items-center p-2 hover:bg-gray-700 rounded-md">📂 Products</Link>
         <Link to="/orders" className="flex items-center p-2 hover:bg-gray-700 rounded-md">📦 Orders</Link>
         <Link to="/reports" className="flex items-center p-2 hover:bg-gray-700 rounded-md">📊 Reports</Link>

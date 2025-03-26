@@ -7,6 +7,7 @@ export const userAuth=create((set)=>({
 
     //initial states
     user:null,
+    users: [], 
     isLoading:false,
     error:null,
     message:null,
@@ -88,6 +89,17 @@ export const userAuth=create((set)=>({
     },
 
 
+    fetchUsers: async () => { 
+        set({ isLoading: true, error: null });
+    
+        try {
+            const response = await axios.get(`${API_URL}/getusers`); // Endpoint for fetching all users
+            set({ users: response.data.users, isLoading: false }); // Fixed this line
+        } catch (error) {
+            set({ isLoading: false, error: error.response.data.message || "Error fetching users" });
+            throw error;
+        }
+    },
 
     logout:async()=>{
 
