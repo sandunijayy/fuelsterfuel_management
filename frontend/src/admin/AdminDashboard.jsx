@@ -4,7 +4,7 @@ import AdminNavbar from '../components/AdminNavbar'
 function AdminDashboard() {
   return (
     <div>
-       <AdminNavbar/> 
+       {<AdminNavbar/> }
       <h1>This is admin dashboard</h1>
     </div>
   )

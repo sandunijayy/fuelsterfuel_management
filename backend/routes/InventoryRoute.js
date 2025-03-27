@@ -1,5 +1,5 @@
 import express from "express";
-import { addInventory, getAllInventory, getInventoryById, updateInventory, deleteInventory } from "../controller/InventoryController.js";
+import { addInventory, getAllInventory, getInventoryById, updateInventory, deleteInventory, getPriceByFuelType } from "../controller/InventoryController.js";
 
 const router = express.Router();
 
@@ -16,6 +16,9 @@ router.put("/update/:id", updateInventory);
 
 // Delete inventory item by ID
 router.delete("/delete/:id", deleteInventory);
+
+//get price by fuelType
+router.get("/inventory/:fuelType", getPriceByFuelType);
 
 
 export default router;

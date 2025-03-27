@@ -1,5 +1,10 @@
 import express from "express"
-import { createReservation, getReservationsController, deleteReservationController, getReservationController,getUserReservations} from "../controller/reservationController.js"
+import { createReservation,
+     getReservationsController, 
+     deleteReservationController, 
+     getReservationController,
+     getUserReservations, 
+     updateReservationStatus} from "../controller/reservationController.js"
 
 const router = express.Router();
 
@@ -18,6 +23,10 @@ router.delete("/Deletereserv/:id", deleteReservationController);
 
 //get reservation details according to the login details
 router.get("/reservations/:email", getUserReservations);
+
+//update reservation status
+router.put("/update-status/:id", updateReservationStatus);
+
 
 
 

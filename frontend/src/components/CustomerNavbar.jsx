@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import { userAuth } from '../store/userAuth';
 import toast from "react-hot-toast";
+import logoImage from "../assets/logoImage.png" 
 
 function CustomerNavbar() {
     const { user, logout } = userAuth();
@@ -19,18 +20,18 @@ function CustomerNavbar() {
             {/* Logo Section */}
             <Link to={"/"}>
                 <label className="font-bold tracking-wider md:text-lg lg:text-2xl cursor-pointer text-[#87CEEB]">
-                    Logo Here
+                    <img src={logoImage} alt="" width={150}height={150} />
                 </label>
             </Link>
 
             <div className="flex items-center space-x-5 md:text-lg cursor-pointer">
-                <Link to={"/customer"}>
+                <Link to={"/#"}>
                     <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Customer</p>
                 </Link>
                 <Link to={"/resevation"}>
                     <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Reservation</p>
                 </Link>
-                <Link to={"/inventory"}>
+                <Link to={"/#"}>
                     <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Inventory</p>
                 </Link>
 

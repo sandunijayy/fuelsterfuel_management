@@ -1,6 +1,5 @@
 import Inventory from "../model/InventoryModel.js";
 
-// Add inventory item
 export const addInventory = async (req, res) => {
     const { fuelType, pricePerLiter, literQuantity, expiryDate } = req.body;
 
@@ -9,31 +8,56 @@ export const addInventory = async (req, res) => {
             return res.status(400).json({ message: "Please fill in all fields." });
         }
 
+        // Check if inventory for this fuel type already exists
+        const existingInventory = await Inventory.findOne({ fuelType });
 
+        if (existingInventory) {
+            // If the fuel type already exists, update the available quantity
+            existingInventory.literQuantity = Number(literQuantity);
+            existingInventory.availableQuantity += Number(literQuantity);  // Add to the available quantity
+            existingInventory.expiryDate = new Date(expiryDate);  // Update expiry date
+
+            const updatedInventory = await existingInventory.save();
+
+            return res.status(200).json({
+                inventory: {
+                    id: updatedInventory._id,
+                    fuelType: updatedInventory.fuelType,
+                    pricePerLiter: updatedInventory.pricePerLiter,
+                    literQuantity: updatedInventory.literQuantity,
+                    availableQuantity: updatedInventory.availableQuantity,
+                    expiryDate: updatedInventory.expiryDate.toISOString().split('T')[0],
+                },
+                message: "Inventory updated successfully."
+            });
+        }
+
+        // If fuel type doesn't exist, create a new inventory item
         const inventoryDocument = await Inventory.create({
             fuelType,
             pricePerLiter,
             literQuantity,
+            availableQuantity: literQuantity, // Set availableQuantity to literQuantity initially
             expiryDate,
         });
 
-        if (inventoryDocument) {
-            return res.status(201).json({
-                inventory: {
-                    id: inventoryDocument._id,
-                    fuelType: inventoryDocument.fuelType,
-                    pricePerLiter: inventoryDocument.pricePerLiter,
-                    literQuantity: inventoryDocument.literQuantity,
-                    expiryDate: inventoryDocument.expiryDate.toISOString().split('T')[0],
-                },
-                message: "Inventory added successfully."
-            });
-        }
-
+        return res.status(201).json({
+            inventory: {
+                id: inventoryDocument._id,
+                fuelType: inventoryDocument.fuelType,
+                pricePerLiter: inventoryDocument.pricePerLiter,
+                literQuantity: inventoryDocument.literQuantity,
+                availableQuantity: inventoryDocument.availableQuantity,
+                expiryDate: inventoryDocument.expiryDate.toISOString().split('T')[0],
+            },
+            message: "Inventory added successfully."
+        });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
+
+
 
 // Get all inventory items
 export const getAllInventory = async (req, res) => {
@@ -127,3 +151,25 @@ export const deleteInventory = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
+//get price by fuel type
+export const getPriceByFuelType = async (req, res) => {
+    try {
+        // Trim the fuelType to avoid any leading/trailing spaces or newlines
+        const fuelType = req.params.fuelType.trim();
+        console.log(`Fetching price for fuelType: "${fuelType}"`); // Debugging
+
+        const inventoryItem = await Inventory.findOne({ fuelType });
+
+        if (!inventoryItem) {
+            return res.status(404).json({ message: "Fuel type not found." });
+        }
+
+        res.status(200).json({ pricePerLiter: inventoryItem.pricePerLiter });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+

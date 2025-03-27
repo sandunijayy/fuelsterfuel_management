@@ -8,7 +8,9 @@ import employeeRouter from "./routes/adminStaffRoute.js"
 import reservationRouter from "./routes/reservationRoute.js"
 import InventoryRoute from "./routes/InventoryRoute.js"
 import supplierRouter from "./routes/SupplierRoute.js"
-import placeOrderRouter from "./routes/PlaceOrderRoute.js"; 
+import placeOrderRouter from "./routes/PlaceOrderRoute.js";
+import salesRouter from "./routes/salesRoute.js";
+
 
 dotenv.config()
 
@@ -29,8 +31,10 @@ app.use("/api", userRoute)
 app.use("/api", employeeRouter)
 app.use("/api", reservationRouter);
 app.use("/api", InventoryRoute);
-app.use("/api",supplierRouter);
-app.use("/api", placeOrderRouter); 
+app.use("/api", supplierRouter);
+app.use("/api", placeOrderRouter);
+
+app.use("/api", salesRouter)
 //app.use('/api/v1/getcontact', reservationRouter);
 
 console.log("port is ", process.env.PORT)

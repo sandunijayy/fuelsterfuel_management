@@ -2,6 +2,7 @@ import React from 'react'
 import {Link} from "react-router-dom"
 import { userAuth } from '../store/userAuth';
 import toast from "react-hot-toast";
+import logoImage from "../assets/logoImage.png" 
 
 function Navbar() {
 
@@ -21,7 +22,7 @@ function Navbar() {
     {/* Logo Section */}
     <Link to={"/"}>
       <label className="font-bold tracking-wider md:text-lg lg:text-2xl cursor-pointer text-[#87CEEB]">
-        Logo Here
+        <img src={logoImage} alt="" width={150}height={150} />
       </label>
     </Link>
     

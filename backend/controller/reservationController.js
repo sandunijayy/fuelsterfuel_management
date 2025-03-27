@@ -1,5 +1,8 @@
 
 import Reservation from "../model/reservationModel.js";
+import Inventory from "../model/InventoryModel.js";
+
+
 //import twilio from "twilio"
 
 
@@ -8,17 +11,40 @@ import Reservation from "../model/reservationModel.js";
 //creating a reservation
 export const createReservation = async (req, res) => {
     try {
+
+
         console.log("Received request:", req.body); // Log request body
 
-        const { customerName, email, vehicleType, fuelType, priority, fuelAmount, phoneNumber } = req.body;
-        
+        const { customerName, email, vehicleType, fuelType, priority, fuelAmount, allocatedFuelAmount, phoneNumber } = req.body;
+
+
+        // Define the price per unit of fuel based on the fuelType
+        let pricePerUnit = 0;
+
+        if (fuelType === 'Petrol') {
+            pricePerUnit = 10; // Example price per unit for Petrol
+        } else if (fuelType === 'Diesel') {
+            pricePerUnit = 12; // Example price per unit for Diesel
+        }
+        // Add other fuel types if needed
+
+        // Calculate the total price
+        const totalPrice = pricePerUnit * parseFloat(fuelAmount);
+
+
+
         // Check for missing fields
-        if (!customerName || !email || !vehicleType || !fuelType || !fuelAmount || !phoneNumber) {
+        if (!customerName || !email || !vehicleType || !vehicleNumber || !fuelAmount || !phoneNumber || !totalPrice) {
             console.log("Missing fields in request");
             return res.status(400).json({ error: "All fields are required" });
         }
 
-        const newReservation = new Reservation({ customerName, email, vehicleType, fuelType, priority, fuelAmount, phoneNumber });
+
+        // Calculate the total price based on the amount and price per liter
+        //const totalPrice = fuelAmount * pricePerLiter || 0; // Ensure it's initialized
+
+
+        const newReservation = new Reservation({ customerName, email, vehicleNumber, fuelType, priority, fuelAmount, allocatedFuelAmount, phoneNumber, totalPrice });
         await newReservation.save();
 
         console.log("Reservation saved successfully");
@@ -39,7 +65,7 @@ export const getReservationsController = async (req, res) => {
     }
 };
 
-// Controller for retrieving a specific contact us submission by ID
+// Controller for retrieving a specific reservation submission by ID
 export const getReservationController = async (req, res) => {
     try {
         const reservation = await Reservation.findById(req.params.id);
@@ -52,7 +78,7 @@ export const getReservationController = async (req, res) => {
     }
 };
 
-// Controller for deleting a specific contact us submission by ID
+// Controller for deleting a specific reservation submission by ID
 export const deleteReservationController = async (req, res) => {
     try {
         const deletedReservation = await Reservation.findByIdAndDelete(req.params.id);
@@ -74,7 +100,7 @@ export const getUserReservations = async (req, res) => {
         }
 
         const reservations = await Reservation.find({ email: email });
-        
+
         if (!reservations.length) {
             return res.status(404).json({ message: "No reservations found for this user" });
         }
@@ -114,3 +140,30 @@ export const getReservations = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Update reservation status by admin
+export const updateReservationStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).json({ message: "Status is required" });
+        }
+
+        const updatedReservation = await Reservation.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true } // Returns the updated document
+        );
+
+        if (!updatedReservation) {
+            return res.status(404).json({ message: "Reservation not found" });
+        }
+
+        res.status(200).json(updatedReservation);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+

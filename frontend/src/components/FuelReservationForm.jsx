@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
-
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { userAuth } from '../store/userAuth';
-//import { toast, ToastContainer } from 'react-toastify';
-//import 'react-toastify/dist/ReactToastify.css';
-
-//toast.configure();
+import CustomerNavbar from './customerNavbar';
 
 export default function FuelReservationForm() {
-    const { user } = userAuth(); // Get logged-in user data
+    const { user } = userAuth();
+
 
     const [formData, setFormData] = useState({
         customerName: '',
@@ -19,12 +16,15 @@ export default function FuelReservationForm() {
         fuelAmount: '',
         email: '',
         phoneNumber: '',
+        totalPrice: '',
+        allocatedFuelAmount: ''
     });
 
-    // Prefill form when user data is available
+    const [pricePerLiter, setPricePerLiter] = useState(0);
+
     useEffect(() => {
         if (user) {
-            setFormData((prevData) => ({
+            setFormData(prevData => ({
                 ...prevData,
                 customerName: user.username || '',
                 email: user.email || '',
@@ -32,43 +32,103 @@ export default function FuelReservationForm() {
         }
     }, [user]);
 
+    useEffect(() => {
+        if (formData.fuelType) {
+            axios.get(`http://localhost:5000/api/inventory/${encodeURIComponent(formData.fuelType.trim())}`)
+                .then(response => setPricePerLiter(response.data.pricePerLiter))
+                .catch(error => console.error("Error fetching price:", error));
+        }
+    }, [formData.fuelType]);
+
+    useEffect(() => {
+        setFormData(prevData => ({
+            ...prevData,
+            totalPrice: parseFloat(prevData.fuelAmount) * parseFloat(pricePerLiter)
+        }));
+    }, [formData.fuelAmount, pricePerLiter]);
+
+    //cal allocated fuel amount
+    useEffect(() => {
+        setFormData(prevData => ({
+            ...prevData,
+            allocatedFuelAmount: parseFloat(prevData.fuelAmount)
+        }))
+    })
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("Sending Data:", formData);  // Debugging step
         try {
             await axios.post('http://localhost:5000/api/reservation', formData);
             toast.success('Reservation Successful!');
-            setFormData({ customerName: '', email: '', vehicleType: '', fuelType: '', priority: 'Medium', fuelAmount: '', phoneNumber: '' });
+            setFormData({
+                customerName: user?.username || '',
+                email: user?.email || '',
+                vehicleType: '',
+                fuelType: '',
+                priority: 'Medium',
+                fuelAmount: '',
+                phoneNumber: '',
+                totalPrice: '',
+                allocatedFuelAmount: ''
+            });
         } catch (error) {
+            console.error("Error response:", error.response?.data); // Log error details
             toast.error('Reservation Failed');
         }
     };
 
     return (
-        <div className="p-6 bg-gray-100 rounded-xl shadow-md max-w-md mx-auto mt-10">
-            <h2 className="text-xl font-bold mb-4">Fuel Reservation</h2>
-            <form onSubmit={handleSubmit} className="space-y-3">
-                <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} placeholder="Your Name" required className="w-full p-2 border rounded" />
-                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Your Email" required className="w-full p-2 border rounded" />
-                <input type="text" name="vehicleType" value={formData.vehicleType} onChange={handleChange} placeholder="Vehicle Type" required className="w-full p-2 border rounded" />
-                <select name="fuelType" value={formData.fuelType} onChange={handleChange} required className="w-full p-2 border rounded">
-                    <option value="">Select Fuel Type</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="Electric">Electric</option>
-                </select>
-                <select name="priority" value={formData.priority} onChange={handleChange} className="w-full p-2 border rounded">
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                </select>
-                <input type="number" name="fuelAmount" value={formData.fuelAmount} onChange={handleChange} placeholder="Fuel Amount (Liters)" required className="w-full p-2 border rounded" />
-                <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="Phone Number" required className="w-full p-2 border rounded" />
-                <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">Reserve</button>
-            </form>
-        </div>
+        <>
+            <CustomerNavbar />
+            <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl">
+                <h2 className="text-2xl font-bold text-center mb-5">Fuel Reservation</h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block font-medium mb-1">Name</label>
+                        <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} required className="w-full p-3 border rounded-lg" />
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">Email</label>
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full p-3 border rounded-lg" />
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">Vehicle Number</label>
+                        <input type="text" name="vehicleType" value={formData.vehicleType} onChange={handleChange} required className="w-full p-3 border rounded-lg" />
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">Fuel Type</label>
+                        <select name="fuelType" value={formData.fuelType} onChange={handleChange} required className="w-full p-3 border rounded-lg">
+                            <option value="">Select Fuel Type</option>
+                            <option value="Petrol">Petrol</option>
+                            <option value="Diesel">Diesel</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">Priority</label>
+                        <select name="priority" value={formData.priority} onChange={handleChange} className="w-full p-3 border rounded-lg">
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">Fuel Amount (Liters)</label>
+                        <input type="number" name="fuelAmount" value={formData.fuelAmount} onChange={handleChange} required className="w-full p-3 border rounded-lg" />
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">Phone Number</label>
+                        <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required className="w-full p-3 border rounded-lg" />
+                    </div>
+                    <div className="text-lg font-semibold text-gray-800">Total Price: {formData.totalPrice} Rs.</div>
+                    <div className="text-lg font-semibold text-gray-800">Allocated Fuel Amount: {formData.allocatedFuelAmount} L</div>
+                    <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg font-semibold">Reserve</button>
+                </form>
+            </div>
+        </>
     );
 }

@@ -15,8 +15,14 @@ import AdminNavbar from './components/AdminNavbar'
 import AdminStaff from './admin/AdminStaff'
 import FuelReservationForm from "./components/FuelReservationForm"
 import Supplier from './admin/Supplier';
-import InventoryPage from './pages/Inventorypage'
+import InventoryPage from './admin/Inventorypage';
 import PlaceOrder from './pages/PlaceOrder'
+import AdminReservation from "./admin/AdminReservation";
+import Profile from "./pages/Profile"
+import CustomerDetails from './admin/CustomerDetails'
+import Sales from './staff/Sales'
+import StaffProfile from './staff/StaffProfile'
+
 
 function App() {
 
@@ -51,11 +57,17 @@ function App() {
         <Route path={"/customer"} element={<Customer />} />
         <Route path={"/admindash"} element={<AdminDashboard />} />
         <Route path={"/staff"} element={<AdminStaff />} />
-        <Route path={"/reservation"} element={<FuelReservationForm />} />
+        <Route path={"/resevation"} element={<FuelReservationForm />} />
         <Route path={"/inventory"} element={<InventoryPage />} />
         <Route path={"/suppliers"} element={<Supplier />} />
         <Route path={"/place-order/:supplierId"} element={<PlaceOrder />} />
-        
+        <Route path={"/AdminReservation"} element={<AdminReservation />} />
+        <Route path={"/profile"} element={<Profile />} />
+        <Route path={"/customerdetails"} element={<CustomerDetails />} />
+        <Route path={"/salespage"} element={<Sales />} />
+        <Route path={"/staffprofile"} element={<StaffProfile />} />
+
+
       </Routes>
 
     </>
