@@ -153,13 +153,11 @@ export const deleteInventory = async (req, res) => {
 };
 
 
-
-//get price by fuel type
-export const getPriceByFuelType = async (req, res) => {
+//get fuel details by fueltype
+export const getFuelDetailsByType = async (req, res) => {
     try {
-        // Trim the fuelType to avoid any leading/trailing spaces or newlines
         const fuelType = req.params.fuelType.trim();
-        console.log(`Fetching price for fuelType: "${fuelType}"`); // Debugging
+        console.log(`Fetching fuel details for fuelType: "${fuelType}"`);
 
         const inventoryItem = await Inventory.findOne({ fuelType });
 
@@ -167,9 +165,13 @@ export const getPriceByFuelType = async (req, res) => {
             return res.status(404).json({ message: "Fuel type not found." });
         }
 
-        res.status(200).json({ pricePerLiter: inventoryItem.pricePerLiter });
+        res.status(200).json({
+            fuelType,
+            pricePerLiter: inventoryItem.pricePerLiter,
+            availableQuantity: inventoryItem.availableQuantity
+        });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error fetching fuel details:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 };
-
