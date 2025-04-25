@@ -23,6 +23,13 @@ export default function ViewReservation() {
         }
     };
 
+    // Function to delete a reservation only in the frontend
+    const handleDeleteReservation = (id) => {
+        setReservations((prevReservations) =>
+            prevReservations.filter((res) => res._id !== id)
+        );
+    };
+
     return (
         <div className="p-6 bg-white rounded-xl shadow-xl max-w-4xl mx-auto mt-10 space-y-6">
 
@@ -40,18 +47,37 @@ export default function ViewReservation() {
             <div className="bg-gray-50 p-6 rounded-lg shadow-md">
                 <h3 className="text-2xl font-semibold text-gray-800 mb-4">Reservation Details</h3>
                 {reservations.length > 0 ? (
-                    <ul className="space-y-4">
-                        {reservations.map((res) => (
-                            <li key={res._id} className="border p-4 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-                                <div className="space-y-2">
-                                    <p className="text-lg text-gray-700"><strong>Fuel Type:</strong> {res.fuelType}</p>
-                                    <p className="text-lg text-gray-700"><strong>Amount:</strong> {res.fuelAmount} L</p>
-                                    <p className="text-lg text-gray-700"><strong>Status:</strong> {res.status}</p>
-                                    <p className="text-lg text-gray-700"><strong>Date:</strong> {new Date(res.createdAt).toLocaleDateString()}</p>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full table-auto border-collapse border border-gray-200">
+                            <thead>
+                                <tr className="bg-gray-100">
+                                    <th className="py-3 px-6 text-left text-gray-700 font-semibold">Fuel Type</th>
+                                    <th className="py-3 px-6 text-left text-gray-700 font-semibold">Amount (L)</th>
+                                    <th className="py-3 px-6 text-left text-gray-700 font-semibold">Status</th>
+                                    <th className="py-3 px-6 text-left text-gray-700 font-semibold">Date</th>
+                                    <th className="py-3 px-6 text-left text-gray-700 font-semibold">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {reservations.map((res) => (
+                                    <tr key={res._id} className="border-b hover:bg-gray-50">
+                                        <td className="py-4 px-6 text-gray-700">{res.fuelType}</td>
+                                        <td className="py-4 px-6 text-gray-700">{res.fuelAmount} L</td>
+                                        <td className="py-4 px-6 text-gray-700">{res.status}</td>
+                                        <td className="py-4 px-6 text-gray-700">{new Date(res.createdAt).toLocaleDateString()}</td>
+                                        <td className="p-3">
+                                            <button
+                                                onClick={() => handleDeleteReservation(res._id)}
+                                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700">
+                                                Delete
+                                            </button>
+
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 ) : (
                     <p className="text-lg text-gray-500">No reservations found.</p>
                 )}

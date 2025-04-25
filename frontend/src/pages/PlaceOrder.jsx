@@ -94,10 +94,13 @@ const PlaceOrder = () => {
             deliveryDate,
         };
 
+
+
+
         try {
             await axios.post('http://localhost:5000/api/placeorder', orderData);
             toast.success('Order placed successfully!');
-            navigate(`/orders/${supplierId}`);  // ✅ Redirect to orders page after placing order
+            navigate(`/orders/${supplierId}`, { state: { newOrder: orderData } });
         } catch (error) {
             toast.error('Failed to place the order');
         }

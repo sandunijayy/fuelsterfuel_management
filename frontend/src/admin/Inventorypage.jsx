@@ -3,6 +3,8 @@ import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa';
 import { InventoryAuth } from '../store/InventoryAuth';
 import toast from 'react-hot-toast';
 import AdminNavbar from '../components/AdminNavbar';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'; // Fix autoTable import
 
 function InventoryPage() {
     const [showModal, setShowModal] = useState(false);
@@ -100,6 +102,29 @@ function InventoryPage() {
         new Date(item.expiryDate).toLocaleDateString('en-GB').includes(searchQuery)
     );
 
+    const generatePDF = () => {
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.text("Current Inventory Report", 14, 15);
+
+        const columns = ["Fuel Type", "Price per Liter", "Liter Quantity", "Expiry Date"];
+        const rows = filteredInventory.map(item => [
+            item.fuelType,
+            item.pricePerLiter,
+            item.literQuantity,
+            new Date(item.expiryDate).toLocaleDateString('en-GB')
+        ]);
+
+        autoTable(doc, {
+            startY: 25,
+            head: [columns],
+            body: rows,
+        });
+
+        doc.save("Inventory_Report.pdf");
+    };
+
     return (
         <>
             <AdminNavbar />
@@ -119,6 +144,12 @@ function InventoryPage() {
                         <FaPlus /> Add Inventory
                     </button>
                 </div>
+                <button
+                    className="w-40 px-4 py-2 text-white bg-green-600 rounded-lg flex items-center justify-center gap-2 hover:bg-green-700"
+                    onClick={generatePDF}
+                >
+                    Download PDF
+                </button>
 
                 {/* ✅ Inventory Table */}
                 <table className="w-3/4 max-w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 mx-auto">
@@ -171,14 +202,20 @@ function InventoryPage() {
                             <form onSubmit={isEdit ? handleUpdateInventory : handleAddInventory}>
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">Fuel Type</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={fuelType}
                                         onChange={(e) => setFuelType(e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 rounded"
-                                        placeholder="Fuel Type"
-                                    />
+                                    >
+                                        <option value="">Select Fuel Type</option>
+                                        <option value="Petrol92">Petrol92</option>
+                                        <option value="Petrol95">Petrol95</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Lanka Auto Diesel">Lanka Auto Diesel</option>
+                                        <option value="Lanka Super Diesel">Lanka Super Diesel</option>
+                                    </select>
                                 </div>
+
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">Price per Liter</label>
                                     <input

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AdminNavbar from '../components/AdminNavbar';
+import Reservation from '../../../backend/model/reservationModel';
 
 function AdminReservation() {
     const [reservations, setReservations] = useState([]);
@@ -28,6 +29,31 @@ function AdminReservation() {
             fetchReservations(); // Refresh reservations after updating
         } catch (error) {
             console.error("Error updating status:", error);
+        }
+    };
+
+    const deleteReservation = async (id) => {
+        try {
+            await fetch(`http://localhost:5000/api/Deletereserv/${id}`, {
+                method: "DELETE",
+            });
+            fetchReservations(); // Refresh reservations after deleting
+        } catch (error) {
+            console.error("Error deleting reservation:", error);
+        }
+    };
+
+    const handleDeleteReservation = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this reservation?");
+        if (confirmDelete) {
+            try {
+                await deleteReservation(id);
+                toast.success('Supplier deleted successfully!');
+                fetchReservations();
+            } catch (error) {
+                const errorMessage = error?.response?.data?.message || "Error deleting reservation. Please try again.";
+                toast.error(errorMessage);
+            }
         }
     };
 
@@ -74,6 +100,14 @@ function AdminReservation() {
                                                     <option value="Approved">Approved</option>
                                                     <option value="Rejected">Rejected</option>
                                                 </select>
+                                            </td>
+                                            <td className="p-3">
+                                                <button
+                                                    onClick={() => handleDeleteReservation(res._id)}
+                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700">
+                                                    Delete
+                                                </button>
+
                                             </td>
                                         </tr>
                                     ))

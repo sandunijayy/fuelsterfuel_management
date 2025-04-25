@@ -1,10 +1,13 @@
 import express from "express"
-import { createReservation,
-     getReservationsController, 
-     deleteReservationController, 
+import {
+     createReservation,
+     getReservationsController,
+     deleteReservationController,
      getReservationController,
-     getUserReservations, 
-     updateReservationStatus} from "../controller/reservationController.js"
+     getUserReservations,
+     updateReservationStatus,
+     checkFuelAvailability
+} from "../controller/reservationController.js"
 
 const router = express.Router();
 
@@ -26,6 +29,9 @@ router.get("/reservations/:email", getUserReservations);
 
 //update reservation status
 router.put("/update-status/:id", updateReservationStatus);
+
+//check the fuel availability
+router.get("/checkFuelAvailability", checkFuelAvailability);
 
 
 

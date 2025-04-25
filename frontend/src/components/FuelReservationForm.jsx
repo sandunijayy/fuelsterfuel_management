@@ -4,13 +4,14 @@ import toast from 'react-hot-toast';
 import { userAuth } from '../store/userAuth';
 import CustomerNavbar from './customerNavbar';
 
+
 export default function FuelReservationForm() {
     const { user } = userAuth();
-
+    const emergencyVehicles = ["ABC1234", "XYZ5678", "EMS9999"]; // Example emergency vehicle numbers
 
     const [formData, setFormData] = useState({
         customerName: '',
-        vehicleType: '',
+        vehicleNumber: '',
         priority: 'Medium',
         fuelType: '',
         fuelAmount: '',
@@ -47,28 +48,78 @@ export default function FuelReservationForm() {
         }));
     }, [formData.fuelAmount, pricePerLiter]);
 
-    //cal allocated fuel amount
+    useEffect(() => {
+        if (formData.fuelType && formData.fuelAmount) {
+            axios.post("http://localhost:5000/api/checkFuelAvailability", {
+                fuelType: formData.fuelType,
+                fuelAmount: formData.fuelAmount,
+                priority: formData.priority
+            })
+                .then(response => {
+                    setFormData(prevState => ({
+                        ...prevState,
+                        allocatedFuelAmount: response.data.allocatedFuelAmount
+                    }));
+                })
+                .catch(error => {
+                    console.error("Error fetching allocated fuel amount:", error);
+                });
+        }
+    }, [formData.fuelType, formData.fuelAmount, formData.priority]); // 🔥 API call on relevant field changes
+
     useEffect(() => {
         setFormData(prevData => ({
             ...prevData,
-            allocatedFuelAmount: parseFloat(prevData.fuelAmount)
-        }))
-    })
+            totalPrice: parseFloat(prevData.allocatedFuelAmount) * parseFloat(pricePerLiter) || 0
+        }));
+    }, [formData.allocatedFuelAmount, pricePerLiter]);
 
+
+
+    //cal allocated fuel amount
+    /* useEffect(() => {
+         setFormData(prevData => ({
+             ...prevData,
+             allocatedFuelAmount: parseFloat(prevData.fuelAmount)
+         }))
+     }, [formData.fuelAmount]);*/
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        setFormData(prevData => {
+            const updatedData = { ...prevData, [name]: value };
+
+            // Emergency vehicle validation
+            if (name === "vehicleNumber") {
+                updatedData.priority = emergencyVehicles.includes(value.trim().toUpperCase()) ? "High" : "Medium";
+            }
+
+            return updatedData;
+        });
     };
+
+
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Sending Data:", formData);  // Debugging step
+
+        const requestData = {
+            ...formData,
+            fuelAmount: formData.fuelAmount ? Number(formData.fuelAmount) : 0,
+            totalPrice: formData.totalPrice ? Number(formData.totalPrice) : 0,
+            allocatedFuelAmount: formData.allocatedFuelAmount ? Number(formData.allocatedFuelAmount) : 0
+        };
+
         try {
-            await axios.post('http://localhost:5000/api/reservation', formData);
+            await axios.post('http://localhost:5000/api/reservation', requestData);
             toast.success('Reservation Successful!');
             setFormData({
                 customerName: user?.username || '',
                 email: user?.email || '',
-                vehicleType: '',
+                vehicleNumber: '',
                 fuelType: '',
                 priority: 'Medium',
                 fuelAmount: '',
@@ -77,10 +128,12 @@ export default function FuelReservationForm() {
                 allocatedFuelAmount: ''
             });
         } catch (error) {
-            console.error("Error response:", error.response?.data); // Log error details
-            toast.error('Reservation Failed');
+            console.error("Error response:", error.response?.data || error.message); // Debugging
+            toast.error(error.response?.data?.message || 'Reservation Failed');
         }
     };
+
+
 
     return (
         <>
@@ -98,24 +151,34 @@ export default function FuelReservationForm() {
                     </div>
                     <div>
                         <label className="block font-medium mb-1">Vehicle Number</label>
-                        <input type="text" name="vehicleType" value={formData.vehicleType} onChange={handleChange} required className="w-full p-3 border rounded-lg" />
+                        <input type="text" name="vehicleNumber" value={formData.vehicleNumber} onChange={handleChange} required className="w-full p-3 border rounded-lg" />
                     </div>
                     <div>
                         <label className="block font-medium mb-1">Fuel Type</label>
                         <select name="fuelType" value={formData.fuelType} onChange={handleChange} required className="w-full p-3 border rounded-lg">
                             <option value="">Select Fuel Type</option>
-                            <option value="Petrol">Petrol</option>
+                            <option value="Petrol92">Petrol92</option>
+                            <option value="Petrol95">Petrol95</option>
                             <option value="Diesel">Diesel</option>
+                            <option value="Lanka Auto Diesel">Lanka Auto Diesel</option>
+                            <option value="Lanka Super Diesel">Lanka Super Diesel</option>
                         </select>
                     </div>
                     <div>
                         <label className="block font-medium mb-1">Priority</label>
-                        <select name="priority" value={formData.priority} onChange={handleChange} className="w-full p-3 border rounded-lg">
+                        <select
+                            name="priority"
+                            value={formData.priority}
+                            onChange={handleChange}
+                            className="w-full p-3 border rounded-lg"
+                            disabled={emergencyVehicles.includes(formData.vehicleNumber.trim().toUpperCase())} // Disable if emergency
+                        >
                             <option value="High">High</option>
                             <option value="Medium">Medium</option>
                             <option value="Low">Low</option>
                         </select>
                     </div>
+
                     <div>
                         <label className="block font-medium mb-1">Fuel Amount (Liters)</label>
                         <input type="number" name="fuelAmount" value={formData.fuelAmount} onChange={handleChange} required className="w-full p-3 border rounded-lg" />

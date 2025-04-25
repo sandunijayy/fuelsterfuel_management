@@ -37,13 +37,19 @@ export const getOrdersBySupplier = async (req, res) => {
   const { supplierId } = req.params;
 
   try {
-    const orders = await PlaceOrder.find({ supplierId }).populate("supplierId");
+    // Fetch orders and only select fuelType, quantity, and deliveryDate fields
+    const orders = await PlaceOrder.find({ supplierId })
+      .select("fuelType quantity deliveryDate"); // Select only the required fields
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: "No orders found for this supplier." });
+    }
+
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
   
   // Delete an order by ID
   export const deleteOrder = async (req, res) => {
@@ -59,4 +65,3 @@ export const getOrdersBySupplier = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   };
-  

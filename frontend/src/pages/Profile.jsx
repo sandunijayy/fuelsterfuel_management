@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { userAuth } from "../store/userAuth";
 import toast from "react-hot-toast";
-import ViewReservation from "../pages/viewReservation"; // Importing the viewReservation page/component
+import ViewReservation from "../pages/viewReservation";
 import CustomerNavbar from '../components/customerNavbar';
 
 function Profile() {
@@ -39,86 +39,83 @@ function Profile() {
     return (
         <>
             <CustomerNavbar />
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 p-8">
-                <div className="flex w-full max-w-6xl bg-white shadow-xl rounded-lg p-6 space-x-8">
-                    {/* Left section: User Profile */}
-                    <div className="w-1/2 pr-6">
-                        <h2 className="text-3xl font-semibold text-gray-800 text-center mb-8">Profile</h2>
-
-                        {/* Profile Image */}
-                        <div className="flex justify-center mb-6">
-                            <img
-                                src="/path-to-profile-image.jpg" // Change to user's image URL
-                                alt="Profile"
-                                className="w-28 h-28 rounded-full border-4 border-blue-500 shadow-xl"
-                            />
-                        </div>
-
-                        {/* Profile Info */}
-                        <div className="space-y-6">
+            <div className="flex min-h-screen bg-gray-100">
+                {/* Sidebar */}
+                <aside className="w-1/4 bg-white shadow-md p-6">
+                    <div className="flex flex-col items-center text-center">
+                        <img
+                            src="/path-to-profile-image.jpg"
+                            alt="Profile"
+                            className="w-20 h-20 rounded-full border-2 border-blue-500"
+                        />
+                        <h2 className="mt-4 text-lg font-semibold">{userData.username}</h2>
+                        <p className="text-gray-500">{userData.email}</p>
+                        <button
+                            className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+                    </div>
+                    <nav className="mt-8">
+                        <ul className="space-y-4">
+                            <li className="px-4 py-2 bg-blue-500 text-white rounded-lg">Profile</li>
+                            <li>
+                                <Link to="/viewReservation" className="block px-4 py-2 hover:bg-gray-200 rounded-lg">Reservations</Link>
+                            </li>
+                            <li className="px-4 py-2 hover:bg-gray-200 rounded-lg">Settings</li>
+                        </ul>
+                    </nav>
+                </aside>
+                {/* Main Content */}
+                <main className="w-3/4 p-8">
+                    <div className="bg-white shadow-md rounded-lg p-6">
+                        <h2 className="text-2xl font-semibold mb-6">Profile Information</h2>
+                        <div className="space-y-4">
                             <div>
-                                <label className="block text-gray-600 text-lg font-medium">Username</label>
+                                <label className="block text-gray-600">Username</label>
                                 <input
                                     type="text"
-                                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     value={userData.username}
                                     disabled={!editable}
-                                    onChange={(e) =>
-                                        setUserData({ ...userData, username: e.target.value })
-                                    }
+                                    onChange={(e) => setUserData({ ...userData, username: e.target.value })}
                                 />
                             </div>
-
                             <div>
-                                <label className="block text-gray-600 text-lg font-medium">Email</label>
+                                <label className="block text-gray-600">Email</label>
                                 <input
                                     type="email"
-                                    className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-2 border rounded-lg bg-gray-100"
                                     value={userData.email}
                                     disabled
                                 />
                             </div>
-
-
                         </div>
-
-                        {/* Buttons */}
-                        <div className="flex justify-between items-center mt-8">
+                        <div className="mt-6 flex justify-between">
                             {!editable ? (
                                 <button
-                                    className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-300"
+                                    className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
                                     onClick={() => setEditable(true)}
                                 >
                                     Edit Profile
                                 </button>
                             ) : (
                                 <button
-                                    className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300"
+                                    className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
                                     onClick={handleSave}
                                 >
                                     Save
                                 </button>
                             )}
-
-                            <button
-                                className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300"
-                                onClick={handleLogout}
-                            >
-                                Logout
-                            </button>
                         </div>
                     </div>
+                    {/* Reservations Section */}
 
-                    {/* Right section: View Reservations */}
-                    <div className="w-1/2 pl-6">
-                        <h2 className="text-3xl font-semibold text-gray-800 text-center mb-8">Your Reservations</h2>
-                        <ViewReservation /> {/* Place the viewReservation component here */}
-                    </div>
-                </div>
+                </main>
             </div>
         </>
     );
-
 }
 
 export default Profile;

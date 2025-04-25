@@ -5,7 +5,7 @@ export const addSupplier = async (req, res) => {
 
     try {
         // Check if all fields are provided
-        if (!fullName || !email || !contactNo || !address ) {
+        if (!fullName || !email || !contactNo || !address) {
             throw new Error("Please fill in all fields.");
         }
 
@@ -19,7 +19,7 @@ export const addSupplier = async (req, res) => {
             email,
             contactNo,
             address,
-            
+
         });
 
         if (supplierDocument) {
@@ -30,7 +30,7 @@ export const addSupplier = async (req, res) => {
                     email: supplierDocument.email,
                     contactNo: supplierDocument.contactNo,
                     address: supplierDocument.address,
-                    
+
                 },
                 message: "Supplier added successfully."
             });
@@ -76,7 +76,7 @@ export const getSupplierById = async (req, res) => {
                 email: supplier.email,
                 contactNo: supplier.contactNo,
                 address: supplier.address,
-                
+
             }
         });
 
@@ -105,7 +105,7 @@ export const updateSupplier = async (req, res) => {
         supplierData.email = email || supplierData.email;
         supplierData.contactNo = contactNo || supplierData.contactNo;
         supplierData.address = address || supplierData.address;
-        
+
 
         const updatedSupplier = await supplierData.save();
 
@@ -116,8 +116,8 @@ export const updateSupplier = async (req, res) => {
                 email: updatedSupplier.email,
                 contactNo: updatedSupplier.contactNo,
                 address: updatedSupplier.address,
-                
-                
+
+
             },
             message: "Supplier updated successfully."
         });

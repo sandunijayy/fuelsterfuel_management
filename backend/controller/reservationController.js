@@ -11,46 +11,65 @@ import Inventory from "../model/InventoryModel.js";
 //creating a reservation
 export const createReservation = async (req, res) => {
     try {
+        console.log("Received request body:", req.body); // Debugging step
 
+        const { customerName, email, vehicleNumber, fuelType, priority, fuelAmount, allocatedFuelAmount, phoneNumber } = req.body;
 
-        console.log("Received request:", req.body); // Log request body
-
-        const { customerName, email, vehicleType, fuelType, priority, fuelAmount, allocatedFuelAmount, phoneNumber } = req.body;
-
-
-        // Define the price per unit of fuel based on the fuelType
-        let pricePerUnit = 0;
-
-        if (fuelType === 'Petrol') {
-            pricePerUnit = 10; // Example price per unit for Petrol
-        } else if (fuelType === 'Diesel') {
-            pricePerUnit = 12; // Example price per unit for Diesel
-        }
-        // Add other fuel types if needed
-
-        // Calculate the total price
-        const totalPrice = pricePerUnit * parseFloat(fuelAmount);
-
-
-
-        // Check for missing fields
-        if (!customerName || !email || !vehicleType || !vehicleNumber || !fuelAmount || !phoneNumber || !totalPrice) {
+        if (!customerName || !email || !vehicleNumber || !fuelType || !priority || !fuelAmount || !allocatedFuelAmount || !phoneNumber) {
             console.log("Missing fields in request");
             return res.status(400).json({ error: "All fields are required" });
         }
 
+        let pricePerUnit = 0;
 
-        // Calculate the total price based on the amount and price per liter
-        //const totalPrice = fuelAmount * pricePerLiter || 0; // Ensure it's initialized
+        if (fuelType === 'Petrol92') {
+            pricePerUnit = 10;
+        } else if (fuelType === 'Diesel') {
+            pricePerUnit = 12;
+        } else {
+            return res.status(400).json({ error: "Invalid fuel type" });
+        }
+
+        const totalPrice = pricePerUnit * parseFloat(fuelAmount);
+
+        const inventoryItem = await Inventory.findOne({ fuelType });
+
+        if (!inventoryItem || inventoryItem.availableQuantity < allocatedFuelAmount) {
+            return res.status(400).json({ error: "Not enough fuel in inventory" });
+        }
+
+        // Deduct allocated fuel from inventory
+        inventoryItem.availableQuantity -= allocatedFuelAmount;
+        await inventoryItem.save();
 
 
-        const newReservation = new Reservation({ customerName, email, vehicleNumber, fuelType, priority, fuelAmount, allocatedFuelAmount, phoneNumber, totalPrice });
+
+
+
+        // Deduct allocated fuel from inventory
+        //inventoryItem.availableQuantity -= 
+        // finalAllocatedFuel;
+        //await inventoryItem.save();
+
+        // Save the reservation
+        const newReservation = new Reservation({
+            customerName,
+            email,
+            vehicleNumber,
+            fuelType,
+            priority,
+            fuelAmount,
+            allocatedFuelAmount,
+            phoneNumber,
+            totalPrice
+        });
+
         await newReservation.save();
-
         console.log("Reservation saved successfully");
         res.status(201).json({ message: "Reservation form submitted successfully" });
+
     } catch (error) {
-        console.error("Error creating reservation:", error); // Print full error in logs
+        console.error("Error creating reservation:", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -164,6 +183,57 @@ export const updateReservationStatus = async (req, res) => {
         res.status(200).json(updatedReservation);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+
+//check fuel availability
+export const checkFuelAvailability = async (req, res) => {
+    try {
+        const { fuelType, fuelAmount, priority } = req.body;
+
+        if (!fuelType || !fuelAmount || !priority) {
+            return res.status(400).json({ error: "Fuel type, fuel amount, and priority are required" });
+        }
+
+        const requestedFuelAmount = Number(fuelAmount);
+        if (isNaN(requestedFuelAmount) || requestedFuelAmount <= 0) {
+            return res.status(400).json({ error: "Invalid fuel amount" });
+        }
+
+        const inventoryItem = await Inventory.findOne({ fuelType });
+
+        if (!inventoryItem) {
+            return res.status(404).json({ error: "Fuel type not found in inventory" });
+        }
+
+        const availableFuel = inventoryItem.availableQuantity ?? 0;
+        let allocatedFuelAmount = 0;
+
+        // **Priority-based fuel allocation logic**
+        if (availableFuel >= 100) {
+            if (priority === "High") {
+                allocatedFuelAmount = Math.min(requestedFuelAmount, availableFuel);
+            } else if (priority === "Medium") {
+                allocatedFuelAmount = Math.min(requestedFuelAmount, 10, availableFuel);
+            } else if (priority === "Low") {
+                allocatedFuelAmount = 0; // Low priority gets no fuel when available quantity is 100
+            }
+        } else if (availableFuel >= 50) {
+            if (priority === "High") {
+                allocatedFuelAmount = Math.min(requestedFuelAmount, availableFuel);
+            } else {
+                allocatedFuelAmount = 0; // Only high priority gets fuel when available quantity is 50
+            }
+        } else {
+            allocatedFuelAmount = 0; // No fuel allocation if inventory is below 50
+        }
+
+        return res.status(200).json({ allocatedFuelAmount });
+
+    } catch (error) {
+        console.error("Error checking fuel availability:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 

@@ -12,7 +12,7 @@ router.post("/placeorder", placeOrder);
 // Route to delete an order
 router.delete("/order/:orderId", deleteOrder);
 router.get("/orders/:supplierId", getOrdersBySupplier);
-
+//router.get("/orders/:orderId", getOrdersBySupplier);
 
 
 export default router;

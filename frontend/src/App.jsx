@@ -22,6 +22,8 @@ import Profile from "./pages/Profile"
 import CustomerDetails from './admin/CustomerDetails'
 import Sales from './staff/Sales'
 import StaffProfile from './staff/StaffProfile'
+import OrdersPage from './pages/OrderPage';
+import ViewReservation from './pages/viewReservation'
 
 
 function App() {
@@ -66,6 +68,8 @@ function App() {
         <Route path={"/customerdetails"} element={<CustomerDetails />} />
         <Route path={"/salespage"} element={<Sales />} />
         <Route path={"/staffprofile"} element={<StaffProfile />} />
+        <Route path={"/orders/:supplierId"} element={<OrdersPage />} />
+        <Route path={"/viewReservation"} element={<ViewReservation />} />
 
 
       </Routes>
