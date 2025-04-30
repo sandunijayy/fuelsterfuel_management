@@ -24,3 +24,6 @@ router.delete("/delete/:id", deleteInventory);
 router.get("/inventory/:fuelType", getFuelDetailsByType);
 
 export default router;
+
+
+//insert sonar
