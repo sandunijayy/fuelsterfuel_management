@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
+import axios from "axios"
 
 const AddSaleModal = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,56 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [fuelPrices, setFuelPrices] = useState({})
+  const [fetchingPrices, setFetchingPrices] = useState(true)
+  const [priceError, setPriceError] = useState("")
+
+  // Fetch fuel prices from inventory when component mounts
+  useEffect(() => {
+    const fetchFuelPrices = async () => {
+      try {
+        setFetchingPrices(true)
+        const token = localStorage.getItem("token")
+        const response = await axios.get("http://localhost:5000/api/inventory/get-all", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        const inventoryItems = response.data.inventoryItems
+        const prices = {}
+
+        inventoryItems.forEach((item) => {
+          prices[item.fuelType] = item.pricePerLiter
+        })
+
+        setFuelPrices(prices)
+        setPriceError("")
+      } catch (error) {
+        console.error("Error fetching fuel prices:", error)
+        setPriceError("Failed to fetch fuel prices. Please try again.")
+      } finally {
+        setFetchingPrices(false)
+      }
+    }
+
+    fetchFuelPrices()
+  }, [])
+
+  // Calculate total price when quantity or fuel type changes
+  useEffect(() => {
+    if (formData.fuelType && formData.quantity && !isNaN(formData.quantity)) {
+      const pricePerLiter = fuelPrices[formData.fuelType]
+
+      if (pricePerLiter) {
+        const totalPrice = (Number.parseFloat(formData.quantity) * pricePerLiter).toFixed(2)
+        setFormData((prev) => ({ ...prev, price: totalPrice }))
+      } else if (!fetchingPrices) {
+        // Only show error if we're not still loading prices
+        setPriceError(`Price information for ${formData.fuelType} is not available.`)
+      }
+    }
+  }, [formData.quantity, formData.fuelType, fuelPrices, fetchingPrices])
 
   const validateForm = () => {
     const newErrors = {}
@@ -34,7 +85,7 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
       newErrors.quantity = "Quantity must be a positive number"
     }
 
-    // Validate price
+    // Validate price (should be auto-calculated, but still check)
     if (!formData.price) {
       newErrors.price = "Price is required"
     } else if (isNaN(formData.price) || Number(formData.price) <= 0) {
@@ -83,6 +134,15 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
     setLoading(false)
   }
 
+  // Check if we have fuel prices for the selected fuel type
+  const getFuelPriceInfo = () => {
+    if (fetchingPrices) return "Loading fuel prices..."
+    if (formData.fuelType && fuelPrices[formData.fuelType]) {
+      return `Price per liter: $${fuelPrices[formData.fuelType].toFixed(2)}`
+    }
+    return ""
+  }
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
@@ -97,6 +157,12 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
           <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errors.form}</div>
         )}
 
+        {priceError && (
+          <div className="mb-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+            {priceError}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -108,9 +174,8 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border ${
-                errors.name ? "border-red-300" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+              className={`w-full px-3 py-2 border ${errors.name ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
               placeholder="Enter customer name"
             />
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
@@ -125,9 +190,8 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
               name="fuelType"
               value={formData.fuelType}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border ${
-                errors.fuelType ? "border-red-300" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+              className={`w-full px-3 py-2 border ${errors.fuelType ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
             >
               <option value="">Select Fuel Type</option>
               <option value="Petrol 92">Petrol 92</option>
@@ -137,6 +201,7 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
               <option value="Lanka Super Diesel">Lanka Super Diesel</option>
             </select>
             {errors.fuelType && <p className="mt-1 text-sm text-red-600">{errors.fuelType}</p>}
+            {formData.fuelType && <p className="mt-1 text-sm text-gray-600">{getFuelPriceInfo()}</p>}
           </div>
 
           <div className="mb-4">
@@ -150,9 +215,8 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
               value={formData.quantity}
               onChange={handleChange}
               min="1"
-              className={`w-full px-3 py-2 border ${
-                errors.quantity ? "border-red-300" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+              className={`w-full px-3 py-2 border ${errors.quantity ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
               placeholder="Enter quantity in liters"
             />
             {errors.quantity && <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>}
@@ -167,15 +231,13 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
               id="price"
               name="price"
               value={formData.price}
-              onChange={handleChange}
-              step="0.01"
-              min="0.01"
-              className={`w-full px-3 py-2 border ${
-                errors.price ? "border-red-300" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-              placeholder="Enter total price"
+              readOnly
+              className={`w-full px-3 py-2 border ${errors.price ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100`}
+              placeholder="Auto-calculated based on quantity"
             />
             {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price}</p>}
+            <p className="mt-1 text-sm text-gray-500">This field is auto-calculated based on quantity and fuel price</p>
           </div>
 
           <div className="mb-6">
@@ -187,9 +249,8 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
               name="paymentMethod"
               value={formData.paymentMethod}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border ${
-                errors.paymentMethod ? "border-red-300" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+              className={`w-full px-3 py-2 border ${errors.paymentMethod ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
             >
               <option value="">Select Payment Method</option>
               <option value="Cash">Cash</option>
@@ -209,7 +270,7 @@ const AddSaleModal = ({ onClose, onSubmit }) => {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || fetchingPrices}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               {loading ? "Adding..." : "Add Sale"}

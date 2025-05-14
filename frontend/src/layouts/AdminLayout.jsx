@@ -65,7 +65,7 @@ const AdminLayout = ({ children }) => {
 
   const handleLogout = () => {
     logout()
-    navigate("/login")
+    navigate("/")
   }
 
   const toggleSidebar = () => {
@@ -180,7 +180,7 @@ const AdminLayout = ({ children }) => {
       icon: <Package className="w-5 h-5" />,
     },
     {
-      name: "Orders",
+      name: "Reservations",
       path: "/admin/orders",
       icon: <ShoppingCart className="w-5 h-5" />,
     },
@@ -259,11 +259,10 @@ const AdminLayout = ({ children }) => {
               <li key={item.name}>
                 <Link
                   to={item.path}
-                  className={`flex items-center p-2 rounded-md ${
-                    location.pathname === item.path
+                  className={`flex items-center p-2 rounded-md ${location.pathname === item.path
                       ? "bg-indigo-100 text-indigo-700"
                       : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <span className="mr-3">{item.icon}</span>
                   <span className={isSidebarOpen ? "block" : "hidden"}>{item.name}</span>
@@ -291,11 +290,10 @@ const AdminLayout = ({ children }) => {
                   <li>
                     <Link
                       to="/admin/profile"
-                      className={`block p-2 rounded-md ${
-                        location.pathname === "/admin/profile"
+                      className={`block p-2 rounded-md ${location.pathname === "/admin/profile"
                           ? "bg-indigo-100 text-indigo-700"
                           : "text-gray-600 hover:bg-gray-100"
-                      }`}
+                        }`}
                     >
                       Profile
                     </Link>
@@ -303,11 +301,10 @@ const AdminLayout = ({ children }) => {
                   <li>
                     <Link
                       to="/admin/security"
-                      className={`block p-2 rounded-md ${
-                        location.pathname === "/admin/security"
+                      className={`block p-2 rounded-md ${location.pathname === "/admin/security"
                           ? "bg-indigo-100 text-indigo-700"
                           : "text-gray-600 hover:bg-gray-100"
-                      }`}
+                        }`}
                     >
                       Security
                     </Link>
@@ -370,9 +367,8 @@ const AdminLayout = ({ children }) => {
                         <div
                           key={notification._id}
                           onClick={() => handleNotificationClick(notification)}
-                          className={`py-2 px-3 border-b cursor-pointer hover:bg-gray-50 ${
-                            !notification.isRead ? "bg-blue-50" : ""
-                          }`}
+                          className={`py-2 px-3 border-b cursor-pointer hover:bg-gray-50 ${!notification.isRead ? "bg-blue-50" : ""
+                            }`}
                         >
                           <div className="flex justify-between items-start">
                             <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>

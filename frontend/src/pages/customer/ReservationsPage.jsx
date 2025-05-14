@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-import { Plus, Trash2, AlertCircle } from "lucide-react"
+import { Plus, Trash2, AlertCircle, QrCode, Edit } from "lucide-react"
 import ReservationForm from "../../components/reservations/ReservationForm"
 import DeleteConfirmationModal from "../../components/reservations/DeleteConfirmationModal"
+import QRCodeModal from "../../components/reservations/QRCodeModal"
+import EditReservationForm from "../../components/reservations/EditReservationForm"
 
 const ReservationsPage = () => {
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [showReservationForm, setShowReservationForm] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showQRCodeModal, setShowQRCodeModal] = useState(false)
   const [currentReservation, setCurrentReservation] = useState(null)
   const [successMessage, setSuccessMessage] = useState("")
 
@@ -57,6 +61,7 @@ const ReservationsPage = () => {
       setSuccessMessage(response.data.message)
       setShowReservationForm(false)
       fetchReservations()
+
       return { success: true }
     } catch (error) {
       console.error("Error creating reservation:", error)
@@ -64,11 +69,26 @@ const ReservationsPage = () => {
     }
   }
 
+  // Handle reservation update
+  const handleUpdateReservation = async (id, reservationData) => {
+    try {
+      // Use PATCH instead of PUT - check your backend API to see which method it expects
+      const response = await api.patch(`/reservations/${id}`, reservationData)
+      setSuccessMessage(response.data.message || "Reservation updated successfully")
+      setShowEditForm(false)
+      fetchReservations()
+      return { success: true }
+    } catch (error) {
+      console.error("Error updating reservation:", error)
+      return { error: error.response?.data?.message || "Failed to update reservation" }
+    }
+  }
+
   // Handle reservation deletion
   const handleDeleteReservation = async (id) => {
     try {
       const response = await api.delete(`/reservations/${id}`)
-      setSuccessMessage(response.data.message)
+      setSuccessMessage(response.data.message || "Reservation deleted successfully")
       setShowDeleteModal(false)
       fetchReservations()
     } catch (error) {
@@ -113,6 +133,24 @@ const ReservationsPage = () => {
     }
   }
 
+  // Handle view QR code
+  const handleViewQRCode = (reservation) => {
+    setCurrentReservation(reservation)
+    setShowQRCodeModal(true)
+  }
+
+  // Handle edit reservation
+  const handleEditReservation = (reservation) => {
+    setCurrentReservation(reservation)
+    setShowEditForm(true)
+  }
+
+  // Handle delete reservation
+  const handleShowDeleteModal = (reservation) => {
+    setCurrentReservation(reservation)
+    setShowDeleteModal(true)
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-semibold mb-6">Fuel Reservations</h1>
@@ -121,6 +159,11 @@ const ReservationsPage = () => {
       {successMessage && (
         <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
           {successMessage}
+          {successMessage.includes("created successfully") && (
+            <p className="mt-2 text-sm">
+              Note: QR code will be available once your reservation is approved by an administrator.
+            </p>
+          )}
         </div>
       )}
 
@@ -256,18 +299,58 @@ const ReservationsPage = () => {
                     <div className="text-sm text-gray-500">{formatDate(reservation.createdAt)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {reservation.status === "pending" && (
+                    <div className="flex space-x-2">
+                      {/* QR Code Button */}
+                      {reservation.status === "approved" ? (
+                        <button
+                          onClick={() => handleViewQRCode(reservation)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                          title="View QR Code"
+                        >
+                          <QrCode size={18} />
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="text-gray-300 cursor-not-allowed"
+                          title={
+                            reservation.status === "rejected"
+                              ? "Rejected reservations don't have QR codes"
+                              : "QR code available after approval"
+                          }
+                        >
+                          <QrCode size={18} />
+                        </button>
+                      )}
+
+                      {/* Edit Button - Only for pending reservations */}
+                      {reservation.status === "pending" ? (
+                        <button
+                          onClick={() => handleEditReservation(reservation)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Edit Reservation"
+                        >
+                          <Edit size={18} />
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="text-gray-300 cursor-not-allowed"
+                          title="Only pending reservations can be edited"
+                        >
+                          <Edit size={18} />
+                        </button>
+                      )}
+
+                      {/* Delete Button - Available for all reservations */}
                       <button
-                        onClick={() => {
-                          setCurrentReservation(reservation)
-                          setShowDeleteModal(true)
-                        }}
+                        onClick={() => handleShowDeleteModal(reservation)}
                         className="text-red-600 hover:text-red-900"
-                        title="Cancel Reservation"
+                        title="Delete Reservation"
                       >
                         <Trash2 size={18} />
                       </button>
-                    )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -281,6 +364,15 @@ const ReservationsPage = () => {
         <ReservationForm onClose={() => setShowReservationForm(false)} onSubmit={handleCreateReservation} />
       )}
 
+      {/* Edit Reservation Form Modal */}
+      {showEditForm && currentReservation && (
+        <EditReservationForm
+          reservation={currentReservation}
+          onClose={() => setShowEditForm(false)}
+          onSubmit={(data) => handleUpdateReservation(currentReservation._id, data)}
+        />
+      )}
+
       {/* Delete Confirmation Modal */}
       {showDeleteModal && currentReservation && (
         <DeleteConfirmationModal
@@ -288,6 +380,11 @@ const ReservationsPage = () => {
           onClose={() => setShowDeleteModal(false)}
           onConfirm={() => handleDeleteReservation(currentReservation._id)}
         />
+      )}
+
+      {/* QR Code Modal */}
+      {showQRCodeModal && currentReservation && (
+        <QRCodeModal reservation={currentReservation} onClose={() => setShowQRCodeModal(false)} />
       )}
     </div>
   )

@@ -6,7 +6,7 @@ const fuelTransactionSchema = new mongoose.Schema(
     fuelType: {
       type: String,
       required: true,
-      enum: ["Petrol", "Diesel", "Super Petrol", "Super Diesel"], // Predefined fuel types
+      enum: ["Petrol 92", "Petrol 95", "Diesel", "Lanka Auto Diesel", "Lanka Super Diesel"], // Predefined fuel types
     },
     quantity: { type: Number, required: true }, // Fuel quantity in liters
     price: { type: Number, required: true }, // Total price
