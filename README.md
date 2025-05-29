@@ -1,5 +1,5 @@
 ⛽ FuelSter – Fuel Management System
-FuelEase is a full-stack web application designed to streamline fuel distribution, especially during supply shortages. It includes online reservation, dynamic fuel allocation, emergency vehicle prioritization, inventory tracking, and real-time notifications, making fuel management more efficient and fair.
+FuelSter is a full-stack web application designed to streamline fuel distribution, especially during supply shortages. It includes online reservation, dynamic fuel allocation, emergency vehicle prioritization, inventory tracking, and real-time notifications, making fuel management more efficient and fair.
 
 🚀 Features
 ✅ Online Fuel Reservation
