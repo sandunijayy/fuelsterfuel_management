@@ -2,6 +2,7 @@ import React,{useState} from 'react'
 import { userAuth } from '../store/userAuth'; 
 import {Link,useNavigate} from "react-router-dom"
 import toast from 'react-hot-toast';
+import Navbar from '../components/Navbar';
 
 
 function SignIn() {
@@ -36,6 +37,9 @@ function SignIn() {
 
 
   return (
+
+    <>
+    <Navbar/>
 
     <div className='min-h-screen text-[#252422] bg-[#f3f5f0] px-4 md:px-14'>
 
@@ -74,6 +78,8 @@ function SignIn() {
 
       
     </div>
+
+    </>
 
   )
 }

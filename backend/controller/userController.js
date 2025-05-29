@@ -88,3 +88,15 @@ export const logout = (req, res) => {
     res.clearCookie("token");
     res.status(200).json({ message: "Logged out successfully." });
 };
+
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find();  // Fetch all users from the database
+        if (users.length === 0) {
+            return res.status(404).json({ message: "No users found." });  // If no users exist
+        }
+        res.status(200).json({ users });  // Send back the list of users
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
