@@ -26,7 +26,7 @@ function Navbar() {
     </Link>
     
 
-    {/* {user?(
+    {user?(
       <div className="flex items-center space-x-5 md:text-lg cursor-pointer">
 
       <Link to={"/customer"}><p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Customer</p></Link>
@@ -62,35 +62,7 @@ function Navbar() {
       </Link>
     </div>
     </>
-    )} */}
-
-
-<>
-      <div className="flex items-center space-x-5 md:text-lg">
-      <Link to={"/"}>
-        <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Home</p>
-      </Link>
-      <Link to={"/services"}>
-        <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Services</p>
-      </Link>
-      <Link to={"/features"}>
-        <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Features</p>
-      </Link>
-      <Link to={"/about"}>
-        <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">About Us</p>
-      </Link>
-    </div>
-
-   
-    <div className="flex items-center space-x-5 md:text-lg">
-      <Link to={"/login"}>
-        <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Log in</p>
-      </Link>
-      <Link to={"/signup"}>
-        <p className="hover:bg-[#1A252F] hover:text-white px-4 py-1 rounded">Sign up</p>
-      </Link>
-    </div>
-    </>
+    )}
     
     
   </nav>

@@ -1,14 +1,8 @@
 import React from 'react'
 import fuelImage from '../assets/fuel.jpg';
-import Navbar from '../components/Navbar';
 
 function Home() {
-
   return (
-
-    <>
-
-    <Navbar/>
     <div className="flex justify-between items-center px-40 py-44 mx-auto my-0 bg-white max-w-[1600px] max-md:flex-col max-md:gap-16 max-md:px-10 max-md:py-20 max-md:max-w-[991px] max-sm:px-5 max-sm:py-10 max-sm:max-w-screen-sm">
       {/* Left Section */}
       <section className="max-w-[650px] max-md:max-w-full max-md:text-center">
@@ -27,8 +21,6 @@ function Home() {
       {/* Right Section (Image) */}
       <img src={fuelImage} alt="Placeholder Image" className="w-full max-w-[530px] h-auto rounded-3xl " />
     </div>
-
-    </>
   )
 }
 

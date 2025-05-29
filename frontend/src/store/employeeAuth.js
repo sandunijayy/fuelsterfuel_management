@@ -6,12 +6,9 @@ const API_URL = "http://localhost:5000/api";
 export const employeeAuth = create((set) => ({
     // Initial states
     employees: [],
-    //loggedInEmployee: null,
     isLoading: false,
     error: null,
     message: null,
-
-
 
     // Functions
     addEmployee: async (fullName, email, position, joinDate, username, password) => {
@@ -134,44 +131,5 @@ export const employeeAuth = create((set) => ({
           throw error;
         }
       },
-
-//       login: async (email, password) => {
-//         set({ isLoading: true, error: null });
-
-//         try {
-//             const response = await axios.post(`${API_URL}/login`, { email, password }, { withCredentials: true });
-//             console.log("Login Response:", response.data);
-
-//             if (!response.data || !response.data.employee) {
-//                 throw new Error("Invalid response from server");
-//             }
-
-//             set({
-//                 loggedInEmployee: response.data.employee, // Store only the logged-in user
-//                 isLoading: false,
-//                 message: response.data.message,
-//             });
-
-//             return response.data.employee;
-//         } catch (error) {
-//             set({
-//                 isLoading: false,
-//                 error: error.response?.data.message || "Login failed",
-//             });
-//             throw error;
-//         }
-//     },
-
-//     logout: async () => {
-//       try {
-//           await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-
-//           set({ loggedInEmployee: null, message: "Logged out successfully" }); // Clear logged-in employee
-
-//           return { message: "Logged out successfully" };
-//       } catch (error) {
-//           return { message: error.response?.data?.message || "Logout failed" };
-//       }
-//   },
     
- }));
+}));
